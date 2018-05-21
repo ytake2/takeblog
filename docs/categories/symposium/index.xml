@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Symposium on 竹林由武のブログ</title>
+    <link>/categories/symposium/</link>
+    <description>Recent content in Symposium on 竹林由武のブログ</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Thu, 02 Feb 2017 22:32:38 +0900</lastBuildDate>
+    
+	<atom:link href="/categories/symposium/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>2/26 (日)自殺リスクに関する研究会＠統計数理研究所</title>
+      <link>/2017/02/02/2/26-%E6%97%A5%E8%87%AA%E6%AE%BA%E3%83%AA%E3%82%B9%E3%82%AF%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E7%A0%94%E7%A9%B6%E4%BC%9A%E7%B5%B1%E8%A8%88%E6%95%B0%E7%90%86%E7%A0%94%E7%A9%B6%E6%89%80/</link>
+      <pubDate>Thu, 02 Feb 2017 22:32:38 +0900</pubDate>
+      
+      <guid>/2017/02/02/2/26-%E6%97%A5%E8%87%AA%E6%AE%BA%E3%83%AA%E3%82%B9%E3%82%AF%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E7%A0%94%E7%A9%B6%E4%BC%9A%E7%B5%B1%E8%A8%88%E6%95%B0%E7%90%86%E7%A0%94%E7%A9%B6%E6%89%80/</guid>
+      <description>研究会の開催案内です。 第7回 自殺リスクに関する研究会 概要 統計数理研究所にて開催されてきた自殺リスクに関する研究会は、本年度で最終回となります</description>
+    </item>
+    
+  </channel>
+</rss>

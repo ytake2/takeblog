@@ -1,0 +1,417 @@
+---
+author: "TakeR"
+categories: ["RStudio","blogdown"]
+date: 2016-12-25T14:21:35+09:00
+title: RStudioではグラブれないけど、ブログれる
+---
+
+
+
+<p><a href="http://qiita.com/advent-calendar/2016/rstudio-ide">RStudioアドベントカレンダー</a> 25日のエントリーです。</p>
+<div id="rstudio" class="section level2">
+<h2>RStudioでブログを書きたい</h2>
+<p>RStudioは、Rmarkdownの登場以降、メキメキとドキュメント作成機能が充実していってます。私は、RやRStudioが大好きなので、可能な限り、RStudioと対面していたいのです。データ解析、論文作成、ウェルブサイトの構築・更新、今や全てRStudioで完結します (他の方とのやりとりがなければ…)。</p>
+<p>前に、RStudioでウェブサイト構築が簡単にできるという僕の最も身近なRおじさん(<span class="citation">@kazutan</span>)のツイートみて、いじっていたらほんとに簡単にサイトが立ち上がってとても感動しました。</p>
+</div>
+<div id="blogdown" class="section level2">
+<h2>blogdownパッケージ</h2>
+<p>その後、特に不満なくRStudioでサイトの管理をしていたのですが、業務上、何か自由にメモや告知をあげられる、ブログのような機能をつけられたらな、と思っていました。何気なくTLを眺めていると、また僕の身近なRおじさん(<span class="citation">@kazutan</span>)が、ぼやいてくれました。そして知りました、blogdownパッケージ。僕にとってkazutanは欲しいものを届けてくれる、そう、サンタクロースのような存在なのかもしれません。</p>
+<p>以下では、順を追ってみていきます。</p>
+<div id="github" class="section level3">
+<h3>1 Githubでリポジトリ作る]</h3>
+</div>
+<div id="rstudio" class="section level3">
+<h3>2 RStudioでリポジトリとリンク</h3>
+</div>
+<div id="rstudio-" class="section level3">
+<h3>3 RStudio上で, ブログサイト構築</h3>
+</div>
+<div id="config.toml" class="section level3">
+<h3>4 config.tomlを修正し、俺サイトに</h3>
+</div>
+<div class="section level3">
+<h3>5 投稿チェック</h3>
+</div>
+<div id="commit-push" class="section level3">
+<h3>6 出来上がったサイトをcommit push!!</h3>
+</div>
+</div>
+<div id="github" class="section level2">
+<h2>Githubでリボジトリを作る</h2>
+<p>ブログをRStudioを通じてgithubで公開するために, Githubで新しいリポジトリ(Repository)を作成します。下の画像にあるように、Repositoriesタブをクリックして右端に現れる[New]ボタンを押します。</p>
+<div style="width:200px; height=300px">
+<p><img src="/post/img/git_new_repo.png" /></p>
+</div>
+<p>すると以下のページが登場するので、Repository nameに任意の名前を設定します。今回はmy_blogとしました。レポジトリ名を入力したら、一番下の[Create repository]ボタンを押します。</p>
+<div style="width:200px; height=300px">
+<p><img src="/post/img/git_new_repo2.png" /></p>
+</div>
+<p>これで、ブログサイトのファイルをあげるためのレポジトリが出来ました。[<a href="https://github.com/アカウント名/レポジトリ名.git" class="uri">https://github.com/アカウント名/レポジトリ名.git</a>]をコピーしておきます。</p>
+<div style="width:200px; height=300px">
+<p><img src="/post/img/git_new_repo3.png" /></p>
+</div>
+<p>これでgithubの準備は完了です。ここからはRStudioで作業をします。</p>
+</div>
+<div id="rstudiogithub" class="section level2">
+<h2>RStudioでgithubレポジトリとリンク</h2>
+<p>RStudioを立ち上げて[File]-&gt;[New Project]-&gt;[Version Control]-&gt;[Git]と進めます。</p>
+<div style="width:200px; height=300px">
+<p><img src="/post/img/Rstu_git1.png" /></p>
+</div>
+<div style="width:200px; height=300px">
+<p><img src="/post/img/Rstu_git2.png" /></p>
+</div>
+<p>次のClone Git RepositoryのRepository URLの空欄に、先ほど作成しコビーした、ブログ用のレポジトリのアドレスを貼り付けます。下二つの空欄は、任意に指定します。</p>
+<div style="width:200px; height=300px">
+<p><img src="/post/img/Rstu_git3.png" /></p>
+<p>これでRStudio側も準備完了です。今、右下には、siteフォルダには、「site.Rproj」と「.gitignore」のみです。</p>
+<div style="width:200px; height=300px">
+<p><img src="/post/img/Rstu_git4.png" /></p>
+</div>
+</div>
+<div id="rstudio--1" class="section level2">
+<h2>RStudio上で, ブログサイト構築</h2>
+<p>RStudioでブログサイトを構築して管理するためのバッケージはblogdown(<a href="https://github.com/rstudio/blogdown" class="uri">https://github.com/rstudio/blogdown</a>)、開発者はRStudioドキュメント系の神、yihui(<a href="https://github.com/yihui)さんです" class="uri">https://github.com/yihui)さんです</a>。</p>
+<p><img src="/post/img/blogdown.png" /></p>
+<div id="blogdown-" class="section level3">
+<h3>blogdownパッケージ: インストール</h3>
+<p>blogdownパッケージをgithubからインストールします。hugo
+のテーマを使うので、hugoをインストールします。hugoについては、<a href="http://qiita.com/syui/items/869538099551f24acbbf">この記事</a>や<a href="http://system.blog.uuum.jp/entry/2016/02/16/120000">この記事</a>が参考になります。</p>
+<pre class="r"><code># blogdownのインストール
+devtools::install_github(&#39;rstudio/blogdown&#39;)
+
+# hugoのインストール
+library(blogdown)
+blogdown::install_hugo()</code></pre>
+<p>この極めてシンプルな1行を実行して少し待つと…</p>
+<pre class="r"><code>new_site()</code></pre>
+</div>
+</div>
+<div id="section" class="section level2">
+<h2>!!!</h2>
+<p>ブログがある。RStudioの中にブログがある</p>
+<p><img src="/post/img/blogdown2.png" /></p>
+</div>
+<div id="section-1" class="section level2">
+<h2>!!!</h2>
+<p>ほぼ空だったフォルダが、</p>
+<p><img src="/post/img/Rstu_git5.png" /></p>
+<p>ブログサイト用のフォルダどっさりに!!!!</p>
+<p><img src="/post/img/Rstu_git6.png" /></p>
+<p>ここまできたら、あとはテンプレートを自分のサイト用にカスタマイズしていきます。</p>
+</div>
+<div class="section level2">
+<h2>編集・投稿</h2>
+<p>hello-world.Rmdは、「content」-&gt;「post」のフォルダ内にあります。これを編集すれば記事内容を編集できます。</p>
+<p>元の設定から、</p>
+<pre class="r"><code>---
+title: &quot;Hello World&quot;
+author: &quot;Frida Gomam&quot;
+date: 2015-07-23T21:13:14-05:00
+categories: [&quot;R&quot;]
+---</code></pre>
+<p>タイトル、名前、投稿時間を変更し、カテゴリーを追加してみます。編集して保存をすると自動的に修正が反映されます。実は、new_site()関数を実行して出てきたRmdファイルをそのまま編集している場合は、ずっと、serve_site()関数が実行されている状態になっており、これによって、自動的に保存内容が反映されるようになっています。</p>
+<pre class="r"><code>---
+title: &quot;今日はクリスマス&quot;
+author: &quot;ytake2&quot;
+date: 2016-12-25T21:13:14-05:00
+categories: [&quot;R&quot;,&quot;RStudio&quot;,&quot;blogdown&quot;]
+---</code></pre>
+<p>元のやつ</p>
+<p><img src="/post/img/blogdown4.png" /></p>
+<p>修正後は、タイトル、投稿者、投稿日が変わってますね。</p>
+<p><img src="/post/img/blogdown3.png" /></p>
+<p>カテゴリのタグもしっかりと追加されてます。</p>
+<p>修正前</p>
+<p><img src="/post/img/blogdown5.png" /></p>
+<p>修正後</p>
+<p><img src="/post/img/blogdown3.0.png" /></p>
+<p>あとは、記事内容の修正は、普通にRmarkdownで好きなように書けばOKです。</p>
+</div>
+<div class="section level2">
+<h2>新しい記事の投稿</h2>
+<p>新規の投稿をするには、postフォルダ内に新しい.Rmdファイルを入れてあげれば良いです。以下のようにコマンドを実行すると、postフォルダ内にRmdファイルが作成されます。このRmdファイルを編集すれば、新しい投稿記事の準備完了です。</p>
+<pre class="r"><code>new_content(&quot;post/newContent.Rmd&quot;)</code></pre>
+<p><img src="/post/img/blogdown6.png" /></p>
+<p>新しい記事をブログサイトに上書きするために、serve状態を解除した後で(赤丸のstopボタンを押す)以下のコマンドを実行します。</p>
+<pre class="r"><code>build_site() # 編集内容を反映し統合
+serve_site() # 反映内容を確認</code></pre>
+<p>新規の投稿記事が一番最初にきました。</p>
+<p><img src="/post/img/blogdown7.png" /></p>
+<p>このように、新しくRmdをpostフォルダに突っ込んでいくだけで、どんどんブログを更新できてしまうのです。たまりませんね。</p>
+</div>
+<div id="config.toml-1" class="section level2">
+<h2>config.tomlを修正し、俺サイトに</h2>
+<p>hugoでは、.tomlでサイトの外観を設定していきます。「config.toml」ファイルを開きます。
+以下のここを修正、と記した部分に自分好みの情報に書き換えます。</p>
+<pre class="bash"><code>baseurl = &quot;/&quot;
+relativeurls = true
+languageCode = &quot;en-us&quot;
+title = &quot;Hugo Future Imperfect&quot; &lt;-ここを修正
+theme = &quot;hugo-future-imperfect&quot;
+preserveTaxonomyNames = true
+paginate = 3
+disqusShortname = &quot;shortname&quot;
+googleAnalytics = &quot;&quot;
+
+[params]
+    # Sets the meta tag description, usually reserved for the main page
+    description          = &quot;HTML5 UP theme, Future Imperfect with some extra goodies, ported by Julio Pescador. Powered by Hugo&quot; &lt;-ここを修正
+    # This will appear on the top left of the navigation bar
+    navbarTitle          = &quot;Future Imperfect&quot; &lt;-ここを修正
+    # Social media buttons that appear on the sidebar
+    socialAppearAtTop    = true
+    socialAppearAtBottom = true
+    # set this to the section name if section is not post
+    viewMorePostLink     = &quot;/post/&quot; &lt;-blogフォルダは後で消すのでpostに変えておく
+
+# Optional Params
+    categoriesByCount    = true
+    includeReadingTime   = true
+    # The set of favicons used are based on the write-up from this link:
+    # https://github.com/audreyr/favicon-cheat-sheet
+    # Please see the favicon partial template for more information
+    loadFavicon          = false
+    faviconVersion       = &quot;&quot;
+
+    # Load custom CSS or JavaScript files. This replaces the deprecated params
+    # minifiedFilesCSS and minifiedFilesJS. The variable is an array so that you
+    # can load multiple files if necessary. You can also load the standard theme
+    # files by adding the value, &quot;default&quot;.
+    # customCSS            = [&quot;default&quot;, &quot;/path/to/file&quot;]
+    # customJS             = [&quot;default&quot;, &quot;/path/to/file&quot;]
+
+    # Loading min files for exampleSite
+    customCSS            = [&quot;/css/main.min.css&quot;]
+    customJS             = [&quot;/js/main.min.js&quot;]
+
+# parms.intro will appear on the sidebar
+# This is optional, but it&#39;s suggested to use
+[params.intro]
+    header    = &quot;Hugo Future Imperfect&quot; &lt;-ここを修正
+
+    paragraph = &quot;Another fine responsive site template by &lt;a href=\&quot;http://html5up.net\&quot;&gt;HTML5 UP&lt;/a&gt;. Ported by Julio Pescador with some extra goodies &lt;i class=&#39;fa fa-hand-peace-o&#39;&gt;&lt;/i&gt;&quot; &lt;-ここを修正
+
+    about     = &quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent tellus lacus, auctor vehicula molestie quis, tempor quis velit. Quisque in quam ac leo efficitur vulputate. Phasellus ullamcorper aliquam sodales. Maecenas sit amet condimentum ipsum. Proin sit amet ligula elit. Mauris.&quot; &lt;-ここを修正
+
+# This will also appear on the sidebar.
+# A width of less than 100px is recommended
+# This is optional
+[params.intro.pic]
+    src       = &quot;/img/main/logo.jpg&quot; &lt;-ここに指定されているファイルを自分の好きな画像に置き換える
+    # modify your picture in the shape of a circle or
+    # future imperfect&#39;s hexagonal shape
+    circle    = false
+    imperfect = true
+    width     = &quot;&quot;
+    alt       = &quot;Hugo Future Imperfect&quot; 
+
+# Adjust the amount of recent posts on the sidebar.
+# This is optional. The default value 5 will be used
+[params.postAmount]
+    sidebar = 2
+
+# Set up your menu items in the navigation bar
+# You can use identifier to prepend a font awesome icon to your text
+[[menu.main]]
+    name = &quot;Blog&quot;
+    url = &quot;/blog&quot; &lt;-blogフォルダは後で消すのでpostに変えておく
+    identifier = &quot;fa fa-newspaper-o&quot;
+    weight = 1
+
+[[menu.main]]
+    name = &quot;Categories&quot;
+    url = &quot;/categories&quot;
+    weight = 2
+
+[[menu.main]]
+    name = &quot;About&quot;
+    url = &quot;/about&quot;
+    weight = 3
+
+# Insert your username and the icon will apear on the page as long as
+# socialAppearAtTop or socialAppearAtBottom is set to true in the params area
+# The social media icons will appear on the sidebar
+[social]
+    github          = &quot;jpescador&quot; &lt;-自分のgithubアカウントに
+    bitbucket       = &quot;&quot;
+    jsfiddle        = &quot;&quot;
+    codepen         = &quot;&quot;
+    foursquare      = &quot;&quot;
+    dribbble        = &quot;&quot;
+    deviantart      = &quot;&quot;
+    behance         = &quot;&quot;
+    flickr          = &quot;&quot;
+    instagram       = &quot;&quot;
+    youtube         = &quot;&quot;
+    vimeo           = &quot;&quot;
+    vine            = &quot;&quot;
+    medium          = &quot;&quot;
+    wordpress       = &quot;&quot;
+    tumblr          = &quot;&quot;
+    xing            = &quot;&quot;
+    linkedin        = &quot;&quot;
+    slideshare      = &quot;&quot;
+    stackoverflow   = &quot;&quot;
+    reddit          = &quot;&quot;
+    pinterest       = &quot;&quot;
+    googleplus      = &quot;&quot;
+    facebook        = &quot;&quot;
+    facebook_admin  = &quot;&quot;
+    twitter_domain  = &quot;&quot;
+    twitter         = &quot;julio_pescador&quot; &lt;-自分のツイッターアカウントに
+    email           = &quot;&quot;
+</code></pre>
+<p>修正してみたのが以下</p>
+<pre class="bash"><code>baseurl = &quot;/&quot;
+relativeurls = true
+languageCode = &quot;en-us&quot;
+title = &quot;俺のブログ&quot;
+theme = &quot;hugo-future-imperfect&quot;
+preserveTaxonomyNames = true
+paginate = 3
+disqusShortname = &quot;shortname&quot;
+googleAnalytics = &quot;&quot;
+
+[params]
+    # Sets the meta tag description, usually reserved for the main page
+    description          = &quot;メタタグ&quot;
+    # This will appear on the top left of the navigation bar
+    navbarTitle          = &quot;俺ブロ&quot;
+    # Social media buttons that appear on the sidebar
+    socialAppearAtTop    = true
+    socialAppearAtBottom = true
+    # set this to the section name if section is not post
+    viewMorePostLink     = &quot;/post/&quot;
+
+# Optional Params
+    categoriesByCount    = true
+    includeReadingTime   = true
+    # The set of favicons used are based on the write-up from this link:
+    # https://github.com/audreyr/favicon-cheat-sheet
+    # Please see the favicon partial template for more information
+    loadFavicon          = false
+    faviconVersion       = &quot;&quot;
+
+    # Load custom CSS or JavaScript files. This replaces the deprecated params
+    # minifiedFilesCSS and minifiedFilesJS. The variable is an array so that you
+    # can load multiple files if necessary. You can also load the standard theme
+    # files by adding the value, &quot;default&quot;.
+    # customCSS            = [&quot;default&quot;, &quot;/path/to/file&quot;]
+    # customJS             = [&quot;default&quot;, &quot;/path/to/file&quot;]
+
+    # Loading min files for exampleSite
+    customCSS            = [&quot;/css/main.min.css&quot;]
+    customJS             = [&quot;/js/main.min.js&quot;]
+
+# parms.intro will appear on the sidebar
+# This is optional, but it&#39;s suggested to use
+[params.intro]
+    header    = &quot;タイトル&quot;
+
+    paragraph = &quot;補足など&quot;
+
+    about     = &quot;このブログ記事に関する説明&quot;
+
+# This will also appear on the sidebar.
+# A width of less than 100px is recommended
+# This is optional
+[params.intro.pic]
+    src       = &quot;http://talk-goukaku.blog.so-net.ne.jp/_images/blog/_029/talk-goukaku/E7B791E381A8E8B5A4-4af27.png&quot;
+    # modify your picture in the shape of a circle or
+    # future imperfect&#39;s hexagonal shape
+    circle    = false
+    imperfect = true
+    width     = &quot;&quot;
+    alt       = &quot;Hugo Future Imperfect&quot;
+
+# Adjust the amount of recent posts on the sidebar.
+# This is optional. The default value 5 will be used
+[params.postAmount]
+    sidebar = 2
+
+# Set up your menu items in the navigation bar
+# You can use identifier to prepend a font awesome icon to your text
+[[menu.main]]
+    name = &quot;Blog&quot;
+    url = &quot;/post&quot;
+    identifier = &quot;fa fa-newspaper-o&quot;
+    weight = 1
+
+[[menu.main]]
+    name = &quot;Categories&quot;
+    url = &quot;/categories&quot;
+    weight = 2
+
+[[menu.main]]
+    name = &quot;About&quot;
+    url = &quot;/about&quot;
+    weight = 3
+
+# Insert your username and the icon will apear on the page as long as
+# socialAppearAtTop or socialAppearAtBottom is set to true in the params area
+# The social media icons will appear on the sidebar
+[social]
+    github          = &quot;ytake2&quot;
+    bitbucket       = &quot;&quot;
+    jsfiddle        = &quot;&quot;
+    codepen         = &quot;&quot;
+    foursquare      = &quot;&quot;
+    dribbble        = &quot;&quot;
+    deviantart      = &quot;&quot;
+    behance         = &quot;&quot;
+    flickr          = &quot;&quot;
+    instagram       = &quot;&quot;
+    youtube         = &quot;&quot;
+    vimeo           = &quot;&quot;
+    vine            = &quot;&quot;
+    medium          = &quot;&quot;
+    wordpress       = &quot;&quot;
+    tumblr          = &quot;&quot;
+    xing            = &quot;&quot;
+    linkedin        = &quot;&quot;
+    slideshare      = &quot;&quot;
+    stackoverflow   = &quot;&quot;
+    reddit          = &quot;&quot;
+    pinterest       = &quot;&quot;
+    googleplus      = &quot;&quot;
+    facebook        = &quot;&quot;
+    facebook_admin  = &quot;&quot;
+    twitter_domain  = &quot;&quot;
+    twitter         = &quot;psycle44&quot;
+    email           = &quot;&quot;
+</code></pre>
+<p>これを保存してbuild_site(),serve_site()で確認すると変更が反映されます。</p>
+<p><img src="/post/img/blogdown8.png" /></p>
+</div>
+<div class="section level2">
+<h2>いらないものを消す</h2>
+<p>いまのままだと、サンプルの投稿記事が残ってていまっているので消します。「content」フォルダ内のblogフォルダをdeleteします。</p>
+<p>あとは、aboutページの内容も編集しておきましょう。編集するためには、contentフォルダ内のabout.mdファイルを修正すればOKです。</p>
+<p>##　githubにcommit push!!</p>
+<p>ようやく、サイトが出来上がりました。作成したものもののファイルを最初に作成したgithubのrepositoryにあげます。</p>
+<p>githubにあげる前に少しだけ細工をします。publicフォルダの名称をdocsに変更しておきます。ただ、この細工は、githubでウェブページを公開する方法は他にもあるので、必ずしも必要な手順ではありません。RStudioでブログの編集するときには、一度publicにフォルダ名を戻して編集して、commitする前にdocsに変更します。</p>
+<p>RStudioのgitタブをクリックして、全てのファイルを選択しCommitボタンを押します。</p>
+<p><img src="/post/img/commitpush.png" /></p>
+<p>以下の画面が出てくるので、あとはcommitボタンをしてから、右上のpush!!</p>
+<p><img src="/post/img/commitpush2.png" /></p>
+</div>
+<div id="github" class="section level2">
+<h2>githubでブログページを公開</h2>
+<p>最初に作ったmy_blogというリポジトリに、RStudioで構築したブログサイトのファイルがアップされました。</p>
+<p><img src="/post/img/commitpush3.png" /></p>
+<p>これを公開するためには、「setting」-&gt;「github pages」のsourceタブをクリックして「master branch/docs folder」を選択してsaveボタンを押します。</p>
+<p><img src="/post/img/commitpush4.png" /></p>
+<p>すると以下のように、公開サイトのリンクが出現します。</p>
+<p><img src="/post/img/commitpush5.png" /></p>
+<p>できた。</p>
+<p><a href="https://ytake2.github.io/my_blog/" class="uri">https://ytake2.github.io/my_blog/</a></p>
+<p><img src="/post/img/commitpush6.png" /></p>
+<p>ちなみに、<a href="http://themes.gohugo.io/">hugoのテーマサイト</a>から好きなテンプレートを確認して、githubのユーザー名とレポジトリ名をnew_site関数にしてあげると、自分好みのテンプレートが使えます。</p>
+<pre class="r"><code>new_site(theme=&quot;alanorth/hugo-theme-bootstrap4-blog&quot;)</code></pre>
+<p><img src="/post/img/commitpush7.png" /></p>
+<p>シンプルでおしゃれなブログが、できてしまった。それがRStudio、Markdownだけで管理できるなんて、最高じゃないか。</p>
+<div id="enjoy-rstudio" class="section level3">
+<h3>Enjoy RStudio!!!</h3>
+</div>
+</div>

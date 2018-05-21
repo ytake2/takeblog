@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R on 竹林由武のブログ</title>
+    <link>/categories/r/</link>
+    <description>Recent content in R on 竹林由武のブログ</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Sat, 17 Dec 2016 21:13:14 -0500</lastBuildDate>
+    
+	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>StanでLDA</title>
+      <link>/2016/12/17/stan%E3%81%A7lda/</link>
+      <pubDate>Sat, 17 Dec 2016 21:13:14 -0500</pubDate>
+      
+      <guid>/2016/12/17/stan%E3%81%A7lda/</guid>
+      <description>#library(RWordPress) #library(XMLRPC) library(RISmed) library(tm) library(wordcloud2) library(RColorBrewer) library(topicmodels) wordcloud この記事はStanアドカレ14日目のエントリーです。今回のテーマはwordcloud、LDAです。wordcloudはしたの</description>
+    </item>
+    
+  </channel>
+</rss>
