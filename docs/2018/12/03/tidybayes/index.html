@@ -69,7 +69,7 @@
     
 
     <div class="article-content">
-      <p>今年も始まりましたね。Stanアドカレ。3年連続のエントリーとなりました。本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a>3日目の記事になります。</p>
+      <p>今年も始まりましたね。Stanアドカレ。3年連続のエントリーとなりました。本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 3日目の記事になります。</p>
 <p>2日目のHojoさんの記事で登場したbayesplotパッケージのように、Stanでモデリングした結果を扱いやすくしてくれるパッケージがいくつか出されています。ここでは、<a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>パッケージを紹介したいと思います。</p>
 <p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>は,<a href="http://www.mjskay.com/">ミシガン大学情報学部の助教 Matthew Kay</a>さんが開発したRのパッケージです。去年のアドカレで紹介したctmパッケージの開発もイケメンでしたが、これまたイケメンです。ちなみに昨日担当のHojoさんもイケメン(*´Д`)ﾊｧﾊｧです。</p>
 <div class="figure">
@@ -91,9 +91,10 @@
 <div class="section level3">
 <h3>分析に使用するデータとモデル</h3>
 <ul>
-<li>福島県の各市町村の平成24年の自殺者数と期待死亡数(福島県、[自殺関連指標を計算するエクセルシート]から整理)。なお、今回は例示のために適当な年度からデータをとってきており、平成24年を抽出したことに特別な意味はありません。また福島県のデータを扱っているのも、県で自殺数と期待死亡数をエクセルファイルで公表しているというデータのアクセスしやすさということで選んでいます。</li>
+<li>福島県の各市町村の平成24年の自殺者数と期待死亡数(福島県、<a href="https://www.pref.fukushima.lg.jp/sec/21840a/s-statistics-ctv.html">自殺関連指標を計算するエクセルシート</a>から整理)。なお、今回は例示のために適当な年度からデータをとってきており、平成24年を抽出したことに特別な意味はありません。また福島県のデータを扱っているのも、県で自殺数と期待死亡数をエクセルファイルで公表しているというデータのアクセスしやすさということで選んでいます。</li>
 </ul>
 <p>データは以下のように<code>.csv</code>ファイルから読み込みました。 59の市区町村のデータが縦に並んでいるデータです。</p>
+<p>今回の分析に必要なデータやスクリプトは<a href="https://github.com/ytake2/takeblog/tree/master/content/post/Sdat">こちらから</a></p>
 <pre class="r"><code>library(knitr)
 
 library(readxl)
