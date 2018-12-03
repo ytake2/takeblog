@@ -1,0 +1,646 @@
+<p>今年も始まりましたね。Stanアドカレ。3年連続のエントリーとなりました。本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 3日目の記事になります。</p>
+<p>2日目のHojoさんの記事で登場したbayesplotパッケージのように、Stanでモデリングした結果を扱いやすくしてくれるパッケージがいくつか出されています。ここでは、<a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>パッケージを紹介したいと思います。</p>
+<p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>は,<a href="http://www.mjskay.com/">ミシガン大学情報学部の助教 Matthew Kay</a>さんが開発したRのパッケージです。去年のアドカレで紹介したctmパッケージの開発もイケメンでしたが、これまたイケメンです。ちなみに昨日担当のHojoさんもイケメン(*´Д`)ﾊｧﾊｧです。</p>
+<div class="figure">
+<img src="http://www.mjskay.com/me.jpg" />
+
+</div>
+<p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>の<a href="http://mjskay.github.io/tidybayes/">HP</a>に飛ぶとこう書いています。</p>
+<blockquote>
+<p>tidybayes: Bayesian analysis + tidy data + geoms</p>
+</blockquote>
+<p>Rstanやbrmsなどでベイズ推定の推定結果を整然データ化して、dplyrの関数群やggplotで扱いやすくするぜ、パイプ演算子でホイホイ繋いで行こうぜ、これがtidybayesの基本的な発想です。</p>
+<p>そもそも整然データとはなんぞや、という方は<a href="https://speakerdeck.com/fnshr/zheng-ran-detatutenani">こちらの記事</a>や<a href="https://www.amazon.co.jp/dp/4774198536/ref=as_li_ss_il?ie=UTF8&amp;linkCode=li3&amp;tag=heavywatal-22&amp;linkId=f0acaf09c5bcbd85ee22c534caede9d1">こちらの本</a>をご参照ください。</p>
+<div class="section level3">
+<h3>対応するパッケージ</h3>
+<p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>は下記の主要なベイズ推定パッケージのオブジェクトに対応しています。<br />
+- rstan, brms, rstanarm, runjags, rjags, jagsUI, coda::mcmc and coda::mcmc.list, MCMCglmm</p>
+<p>ここでは、Stan advent calenderなので、Stanの推定結果を使っていきます。</p>
+</div>
+<div class="section level3">
+<h3>分析に使用するデータとモデル</h3>
+<ul>
+<li>福島県の各市町村の平成24年の自殺者数と期待死亡数(福島県、<a href="https://www.pref.fukushima.lg.jp/sec/21840a/s-statistics-ctv.html">自殺関連指標を計算するエクセルシート</a>から整理)。なお、今回は例示のために適当な年度からデータをとってきており、平成24年を抽出したことに特別な意味はありません。また福島県のデータを扱っているのも、県で自殺数と期待死亡数をエクセルファイルで公表しているというデータのアクセスしやすさということで選んでいます。</li>
+</ul>
+<p>データは以下のように<code>.csv</code>ファイルから読み込みました。 59の市区町村のデータが縦に並んでいるデータです。</p>
+<p>今回の分析に必要なデータやスクリプトは<a href="https://github.com/ytake2/takeblog/tree/master/content/post/Sdat">こちらから</a></p>
+<pre class="r"><code>library(knitr)
+
+library(readxl)
+dat&lt;-read_excel(&quot;Sdat/H25fukushima_suicide.xlsx&quot;)
+
+# d : 実自殺死亡数,exp_d:期待死亡数, area:行政区域
+kable(dat)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">ct_name</th>
+<th align="right">d</th>
+<th align="right">exp_d</th>
+<th align="left">area</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">福島市</td>
+<td align="right">44</td>
+<td align="right">58.168141</td>
+<td align="left">県北</td>
+</tr>
+<tr class="even">
+<td align="left">会津若松市</td>
+<td align="right">25</td>
+<td align="right">25.375612</td>
+<td align="left">会津</td>
+</tr>
+<tr class="odd">
+<td align="left">郡山市</td>
+<td align="right">60</td>
+<td align="right">25.375612</td>
+<td align="left">県中</td>
+</tr>
+<tr class="even">
+<td align="left">いわき市</td>
+<td align="right">68</td>
+<td align="right">67.907786</td>
+<td align="left">いわき</td>
+</tr>
+<tr class="odd">
+<td align="left">白河市</td>
+<td align="right">17</td>
+<td align="right">12.850420</td>
+<td align="left">県南</td>
+</tr>
+<tr class="even">
+<td align="left">須賀川市</td>
+<td align="right">18</td>
+<td align="right">15.671975</td>
+<td align="left">県中</td>
+</tr>
+<tr class="odd">
+<td align="left">喜多方市</td>
+<td align="right">11</td>
+<td align="right">10.675036</td>
+<td align="left">会津</td>
+</tr>
+<tr class="even">
+<td align="left">相馬市</td>
+<td align="right">10</td>
+<td align="right">7.348924</td>
+<td align="left">相双</td>
+</tr>
+<tr class="odd">
+<td align="left">二本松市</td>
+<td align="right">13</td>
+<td align="right">11.972770</td>
+<td align="left">県北</td>
+</tr>
+<tr class="even">
+<td align="left">田村市</td>
+<td align="right">13</td>
+<td align="right">8.129224</td>
+<td align="left">県中</td>
+</tr>
+<tr class="odd">
+<td align="left">南相馬市</td>
+<td align="right">17</td>
+<td align="right">13.573328</td>
+<td align="left">相双</td>
+</tr>
+<tr class="even">
+<td align="left">伊達市</td>
+<td align="right">17</td>
+<td align="right">13.312291</td>
+<td align="left">県北</td>
+</tr>
+<tr class="odd">
+<td align="left">本宮市</td>
+<td align="right">6</td>
+<td align="right">6.269023</td>
+<td align="left">県北</td>
+</tr>
+<tr class="even">
+<td align="left">桑折町</td>
+<td align="right">6</td>
+<td align="right">2.605842</td>
+<td align="left">県北</td>
+</tr>
+<tr class="odd">
+<td align="left">国見町</td>
+<td align="right">1</td>
+<td align="right">2.070456</td>
+<td align="left">県北</td>
+</tr>
+<tr class="even">
+<td align="left">川俣町</td>
+<td align="right">5</td>
+<td align="right">3.162235</td>
+<td align="left">県北</td>
+</tr>
+<tr class="odd">
+<td align="left">大玉村</td>
+<td align="right">1</td>
+<td align="right">1.723326</td>
+<td align="left">県北</td>
+</tr>
+<tr class="even">
+<td align="left">鏡石町</td>
+<td align="right">5</td>
+<td align="right">2.527968</td>
+<td align="left">県中</td>
+</tr>
+<tr class="odd">
+<td align="left">天栄村</td>
+<td align="right">1</td>
+<td align="right">1.259279</td>
+<td align="left">県中</td>
+</tr>
+<tr class="even">
+<td align="left">下郷町</td>
+<td align="right">1</td>
+<td align="right">1.334998</td>
+<td align="left">南会津</td>
+</tr>
+<tr class="odd">
+<td align="left">檜枝岐村</td>
+<td align="right">0</td>
+<td align="right">0.132899</td>
+<td align="left">南会津</td>
+</tr>
+<tr class="even">
+<td align="left">只見町</td>
+<td align="right">1</td>
+<td align="right">1.027436</td>
+<td align="left">南会津</td>
+</tr>
+<tr class="odd">
+<td align="left">南会津町</td>
+<td align="right">9</td>
+<td align="right">3.653121</td>
+<td align="left">南会津</td>
+</tr>
+<tr class="even">
+<td align="left">北塩原村</td>
+<td align="right">1</td>
+<td align="right">0.636893</td>
+<td align="left">会津</td>
+</tr>
+<tr class="odd">
+<td align="left">西会津町</td>
+<td align="right">2</td>
+<td align="right">1.531115</td>
+<td align="left">会津</td>
+</tr>
+<tr class="even">
+<td align="left">磐梯町</td>
+<td align="right">1</td>
+<td align="right">0.766568</td>
+<td align="left">会津</td>
+</tr>
+<tr class="odd">
+<td align="left">猪苗代町</td>
+<td align="right">4</td>
+<td align="right">3.224526</td>
+<td align="left">会津</td>
+</tr>
+<tr class="even">
+<td align="left">会津坂下町</td>
+<td align="right">1</td>
+<td align="right">3.509567</td>
+<td align="left">会津</td>
+</tr>
+<tr class="odd">
+<td align="left">湯川村</td>
+<td align="right">1</td>
+<td align="right">0.658855</td>
+<td align="left">会津</td>
+</tr>
+<tr class="even">
+<td align="left">柳津町</td>
+<td align="right">2</td>
+<td align="right">0.805126</td>
+<td align="left">会津</td>
+</tr>
+<tr class="odd">
+<td align="left">三島町</td>
+<td align="right">0</td>
+<td align="right">0.407848</td>
+<td align="left">会津</td>
+</tr>
+<tr class="even">
+<td align="left">金山町</td>
+<td align="right">1</td>
+<td align="right">0.531824</td>
+<td align="left">会津</td>
+</tr>
+<tr class="odd">
+<td align="left">昭和村</td>
+<td align="right">0</td>
+<td align="right">0.327850</td>
+<td align="left">会津</td>
+</tr>
+<tr class="even">
+<td align="left">会津美里町</td>
+<td align="right">9</td>
+<td align="right">4.636978</td>
+<td align="left">会津</td>
+</tr>
+<tr class="odd">
+<td align="left">西郷村</td>
+<td align="right">5</td>
+<td align="right">3.950623</td>
+<td align="left">県南</td>
+</tr>
+<tr class="even">
+<td align="left">泉崎村</td>
+<td align="right">0</td>
+<td align="right">1.352458</td>
+<td align="left">県南</td>
+</tr>
+<tr class="odd">
+<td align="left">中島村</td>
+<td align="right">0</td>
+<td align="right">1.013841</td>
+<td align="left">県南</td>
+</tr>
+<tr class="even">
+<td align="left">矢吹町</td>
+<td align="right">3</td>
+<td align="right">3.685508</td>
+<td align="left">県南</td>
+</tr>
+<tr class="odd">
+<td align="left">棚倉町</td>
+<td align="right">4</td>
+<td align="right">2.969165</td>
+<td align="left">県南</td>
+</tr>
+<tr class="even">
+<td align="left">矢祭町</td>
+<td align="right">2</td>
+<td align="right">1.300456</td>
+<td align="left">県南</td>
+</tr>
+<tr class="odd">
+<td align="left">塙町</td>
+<td align="right">1</td>
+<td align="right">2.008611</td>
+<td align="left">県南</td>
+</tr>
+<tr class="even">
+<td align="left">鮫川村</td>
+<td align="right">1</td>
+<td align="right">0.796393</td>
+<td align="left">県南</td>
+</tr>
+<tr class="odd">
+<td align="left">石川町</td>
+<td align="right">6</td>
+<td align="right">3.618223</td>
+<td align="left">県中</td>
+</tr>
+<tr class="even">
+<td align="left">玉川村</td>
+<td align="right">1</td>
+<td align="right">1.438024</td>
+<td align="left">県中</td>
+</tr>
+<tr class="odd">
+<td align="left">平田村</td>
+<td align="right">1</td>
+<td align="right">1.385329</td>
+<td align="left">県中</td>
+</tr>
+<tr class="even">
+<td align="left">浅川町</td>
+<td align="right">3</td>
+<td align="right">1.381659</td>
+<td align="left">県中</td>
+</tr>
+<tr class="odd">
+<td align="left">古殿町</td>
+<td align="right">1</td>
+<td align="right">1.205864</td>
+<td align="left">県中</td>
+</tr>
+<tr class="even">
+<td align="left">三春町</td>
+<td align="right">6</td>
+<td align="right">3.694287</td>
+<td align="left">県中</td>
+</tr>
+<tr class="odd">
+<td align="left">小野町</td>
+<td align="right">3</td>
+<td align="right">2.244206</td>
+<td align="left">県中</td>
+</tr>
+<tr class="even">
+<td align="left">広野町</td>
+<td align="right">0</td>
+<td align="right">1.060691</td>
+<td align="left">相双</td>
+</tr>
+<tr class="odd">
+<td align="left">楢葉町</td>
+<td align="right">1</td>
+<td align="right">1.512063</td>
+<td align="left">相双</td>
+</tr>
+<tr class="even">
+<td align="left">富岡町</td>
+<td align="right">3</td>
+<td align="right">2.926424</td>
+<td align="left">相双</td>
+</tr>
+<tr class="odd">
+<td align="left">川内村</td>
+<td align="right">1</td>
+<td align="right">0.590485</td>
+<td align="left">相双</td>
+</tr>
+<tr class="even">
+<td align="left">大熊町</td>
+<td align="right">1</td>
+<td align="right">2.185874</td>
+<td align="left">相双</td>
+</tr>
+<tr class="odd">
+<td align="left">双葉町</td>
+<td align="right">2</td>
+<td align="right">1.308440</td>
+<td align="left">相双</td>
+</tr>
+<tr class="even">
+<td align="left">浪江町</td>
+<td align="right">2</td>
+<td align="right">3.950420</td>
+<td align="left">相双</td>
+</tr>
+<tr class="odd">
+<td align="left">葛尾村</td>
+<td align="right">0</td>
+<td align="right">0.317573</td>
+<td align="left">相双</td>
+</tr>
+<tr class="even">
+<td align="left">新地町</td>
+<td align="right">0</td>
+<td align="right">1.609630</td>
+<td align="left">相双</td>
+</tr>
+<tr class="odd">
+<td align="left">飯館村</td>
+<td align="right">2</td>
+<td align="right">1.262074</td>
+<td align="left">相双</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3>市町村レベルの標準化死亡比推定モデル</h3>
+<div class="section level4">
+<h4>標準化死亡比</h4>
+<p>標準化死亡比 (Standardized Mortality Ratio)は、地域間での死亡率を比較する指標としてよく用いられる指標です。</p>
+<p>一般的には、当該地域の実際の死亡数<span class="math inline">\(d\)</span>と、全国の年齢階級別死亡率と当該地域の死亡数かけて算出される期待死亡数<span class="math inline">\(exp_d\)</span>の比をとって100かけた値,</p>
+<p><span class="math inline">\(\frac{d}{exp_d}\times 100\)</span>,</p>
+<p>がSMRになります。</p>
+<p>100であれば全国平均と同一、100以下であれば全国より当該地域の死亡率が低い、100以上であれば全国より当該地域の死亡率が高いことを示しています。<br />
+なお、SMRは人口規模の小さい地域では変動が大きいという欠点があり、それを補うために、階層ベイズモデルを用いた縮約統計量の利活用が推奨されています。</p>
+<p>例えば、[関西大学の紺田先生による市町村レベルの標準化死亡比の階層モデルについての文献が勉強になります。<a href="http://www.kansai-u.ac.jp/step/img/public/20140331/0331-1.pdf">こちら</a>や<a href="http://www.myschedule.jp/jpa2014/tex_output/source/jpa2014_poster/90850.pdf">こちら</a></p>
+</div>
+<div id="poisson-gamma" class="section level4">
+<h4>市区町村の標準化死亡比を推定するpoisson-gammaモデル</h4>
+<p>ここでは、上記の紺田先生のモデルに基づいて標準化死亡比を階層モデルを使って推定します。</p>
+<ul>
+<li>地域<span class="math inline">\(i\)</span>の自殺発生数: <span class="math inline">\(d_i\)</span><br />
+</li>
+<li>地域<span class="math inline">\(i\)</span>の期待死亡数: <span class="math inline">\(exp\_d_i\)</span><br />
+</li>
+<li>地域<span class="math inline">\(i\)</span>の潜在的な標準化死亡比: <span class="math inline">\(\theta_i\)</span></li>
+</ul>
+<p>possison-gamma モデル</p>
+<p><span class="math display">\[d_i \sim Poisson(exp\_d_i \theta_i)\]</span></p>
+<p><span class="math inline">\(\theta\)</span>の事前分布に、ガンマ分布指定し、</p>
+<p><span class="math display">\[ \theta_i \sim Gamma (\alpha, \beta) \]</span></p>
+<p>ガンマ分布の形状パラメータ(<span class="math inline">\(\alpha\)</span>)と尺度パラメータ(<span class="math inline">\(\beta\)</span>)には、指数分布とガンマ分布を指定します。</p>
+<p><span class="math display">\[\alpha \sim Exp (b_\alpha = 1), \beta \sim Gamma (a = 0.1, b_\beta = 1)\]</span></p>
+</div>
+<div id="stan-" class="section level4">
+<h4>stan コード</h4>
+<p>このpoisson-gammaモデルの推定を行うためのstanコードは、以下のようになります。</p>
+<pre class="stan"><code>data{
+  int r; // 地域数
+  int d[r]; //各地域の自殺発生数
+  real exp_d[r];　//各地域の期待死亡数
+}
+parameters{
+  real &lt;lower=0&gt; theta[r];
+  real &lt;lower=0&gt; alpha;
+  real &lt;lower=0&gt; beta;
+}
+
+model {
+  for(i in 1:r){
+    d[i] ~ poisson(exp_d[i]*theta[i]);
+    theta[i] ~ gamma(alpha,beta);
+  }
+  alpha ~ exponential(1);
+  beta ~ gamma(0.1,1);
+}
+
+generated quantities {
+  real RRmean; 
+  real RRvar;
+  RRmean = alpha/beta; // 市区町村の自殺相対リスクの県平均
+  RRvar = alpha/(beta^2); // 市区町村の自殺相対リスクの分散
+}
+</code></pre>
+<p>generated quantitiesブロックでは、gamma分布の性質利用して<span class="math inline">\(\alpha\)</span>と<span class="math inline">\(\beta\)</span>か県レベルの相対リスクの平均と分散を生成量として求めています。</p>
+</div>
+<div class="section level4">
+<h4>推定の実行</h4>
+<pre class="r"><code>library(rstan)
+
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+modelGP&lt;-stan_model(&quot;Sdat/HPGmodel.stan&quot;)
+
+fit&lt;-sampling(modelGP,data=list(d=dat$d,exp_d=dat$exp_d,r=nrow(dat)))</code></pre>
+</div>
+</div>
+<div id="tidybayes" class="section level3">
+<h3>ここからtidybayesの関数を紹介</h3>
+<div id="spread_draw" class="section level4">
+<h4>spread_draw関数</h4>
+<p>tidybayesパッケージでは、ほぼ全ての場合において、ベイズ推定結果が格納されているオブジェクトをこの<code>spread_draws</code>関数に流すことから始まります。<code>stan</code>オブジェクトを<code>spread_draws</code>関数に落とすと下記のような整然データが得られます。</p>
+<pre class="r"><code>library(tidyverse)
+library(tidybayes)
+
+fit %&gt;%  spread_draws(theta[r], alpha,beta) %&gt;% head(20)</code></pre>
+<pre><code>## # A tibble: 20 x 7
+## # Groups:   r [20]
+##    .chain .iteration .draw     r theta alpha  beta
+##     &lt;int&gt;      &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1      1          1     1     1 1.04   5.74  4.71
+##  2      1          1     1     2 1.29   5.74  4.71
+##  3      1          1     1     3 2.20   5.74  4.71
+##  4      1          1     1     4 1.09   5.74  4.71
+##  5      1          1     1     5 0.941  5.74  4.71
+##  6      1          1     1     6 1.01   5.74  4.71
+##  7      1          1     1     7 1.58   5.74  4.71
+##  8      1          1     1     8 1.05   5.74  4.71
+##  9      1          1     1     9 1.10   5.74  4.71
+## 10      1          1     1    10 1.28   5.74  4.71
+## 11      1          1     1    11 0.828  5.74  4.71
+## 12      1          1     1    12 1.32   5.74  4.71
+## 13      1          1     1    13 0.875  5.74  4.71
+## 14      1          1     1    14 1.17   5.74  4.71
+## 15      1          1     1    15 0.480  5.74  4.71
+## 16      1          1     1    16 1.26   5.74  4.71
+## 17      1          1     1    17 0.574  5.74  4.71
+## 18      1          1     1    18 1.95   5.74  4.71
+## 19      1          1     1    19 0.988  5.74  4.71
+## 20      1          1     1    20 1.46   5.74  4.71</code></pre>
+<p>chainごと、iterationごと、drawごと、地域(r)ごとのパラメータの推定結果が一つのtibble形式のデータフレームとして整理されます。パラメータが複数ある場合には、<code>gather_draws</code>関数を使って、変数群をlongフォーマットで整理することもできます(ggplotで可視化するときに便利です)。</p>
+</div>
+<div class="section level4">
+<h4>事後分布の要約統計量系関数</h4>
+<p><code>tidybayes</code>パッケーでは、<code>spread_draws</code>もしくは<code>gather_draws</code>関数で整然化されたデータを下記の関数に流すことで、事後分布のようやく統計量の整然データを得ることができます。中央値、平均値、最頻値について、それぞれパーセンタイルに基づく方法と最高密度区間に基づく方法を選べます。</p>
+<ul>
+<li><code>median_hdci</code>: 中央値で最高密度区間</li>
+<li><code>mean_hdci</code>: 平均値で最高密度区間</li>
+<li><code>mode_hdci</code>: 最頻値で最高密度区間</li>
+<li><code>median_qi</code>: 中央値でパーセンタイル</li>
+<li><code>mean_qi</code>：平均値でパーセンタイル</li>
+<li><code>mode_qi</code>：最頻値でパーセンタイル</li>
+</ul>
+<p>試しに各市町村の潜在SMR<span class="math inline">\(\theta\)</span>の事後分布の中央値と最高密度区間を抽出して見ます。</p>
+<pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;%
+   median_hdci()</code></pre>
+<pre><code>## # A tibble: 59 x 7
+##        r theta .lower .upper .width .point .interval
+##    &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+##  1     1 0.778  0.556  0.999  0.950 median hdci     
+##  2     2 1.00   0.668  1.41   0.950 median hdci     
+##  3     3 2.22   1.71   2.78   0.950 median hdci     
+##  4     4 1.01   0.784  1.26   0.950 median hdci     
+##  5     5 1.28   0.746  1.85   0.950 median hdci     
+##  6     6 1.14   0.699  1.62   0.950 median hdci     
+##  7     7 1.06   0.546  1.64   0.950 median hdci     
+##  8     8 1.29   0.650  1.99   0.950 median hdci     
+##  9     9 1.10   0.622  1.65   0.950 median hdci     
+## 10    10 1.46   0.824  2.18   0.950 median hdci     
+## # ... with 49 more rows</code></pre>
+<p>簡単にstanオブジェクトから整然データが得られました。地域データなので、せっかくなので地図で可視化したいと思います。</p>
+<pre class="r"><code>library(jpndistrict)
+fukushima&lt;-jpndistrict::jpn_pref(pref_code=&quot;7&quot;)
+
+theta_bayes&lt;-fit %&gt;% spread_draws(theta[r]) %&gt;% median_hdci()
+
+fukushima2&lt;-data.frame(fukushima,theta_bayes,dat)
+
+fukushima2 %&gt;% ggplot() +
+  geom_sf(aes(geometry = geometry,fill=theta),col = &quot;white&quot; )+
+  theme_bw()</code></pre>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>dplyrの関数がパイプ演算子でそのまま使えるので、全ての市町村から市のデータ(r=1:13)だけを抽出したい場合に、filter関数で抽出することができます。</p>
+<pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
+  filter(r==grep(&quot;市&quot;,dat$ct_name))%&gt;%
+   median_hdci()</code></pre>
+<pre><code>## # A tibble: 13 x 7
+##        r theta .lower .upper .width .point .interval
+##    &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+##  1     1 0.765  0.582  0.997  0.950 median hdci     
+##  2     2 0.992  0.673  1.36   0.950 median hdci     
+##  3     3 2.22   1.65   2.66   0.950 median hdci     
+##  4     4 0.997  0.798  1.27   0.950 median hdci     
+##  5     5 1.24   0.849  1.85   0.950 median hdci     
+##  6     6 1.15   0.710  1.63   0.950 median hdci     
+##  7     7 1.05   0.557  1.53   0.950 median hdci     
+##  8     8 1.24   0.665  2.03   0.950 median hdci     
+##  9     9 1.09   0.623  1.60   0.950 median hdci     
+## 10    10 1.50   0.884  2.11   0.950 median hdci     
+## 11    11 1.24   0.793  1.84   0.950 median hdci     
+## 12    12 1.25   0.699  1.76   0.950 median hdci     
+## 13    13 1.03   0.511  1.76   0.950 median hdci</code></pre>
+</div>
+<div class="section level4">
+<h4>事後分布のプロット関数</h4>
+<ul>
+<li><p><code>geom_eyeh</code>:事後分布を両側に出します。</p></li>
+<li><p><code>geom_harlfeyeh</code>: 事後分布が片側だけに出ます</p></li>
+</ul>
+<p>どちらも事後分布と共に、点推定値と確信区間が表示されます。<code>geom_eyeh</code>,<code>geom_harlfeyeh</code>の引数、point_intervalで点推定値と確信区間にどれを使うか指定できます。また引数<code>.width</code>で確信区間の区間幅も指定可能です。</p>
+<pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
+  filter(r==grep(&quot;市&quot;,dat$ct_name)[1:2])%&gt;% ggplot()+geom_eyeh(aes(x=theta,y=as.factor(r)),point_interval=median_hdci,.width=c(.66,0.96))+ylab(&quot;City&quot;)</code></pre>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
+  filter(r==grep(&quot;市&quot;,dat$ct_name)[1:2])%&gt;% ggplot()+geom_halfeyeh(aes(x=theta,y=as.factor(r)),point_interval=median_hdci,.width=c(.66,0.96))+ylab(&quot;City&quot;)</code></pre>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+</div>
+<div class="section level4">
+<h4>モコモコしたくない人は区間推定のみのプロットも選択可能</h4>
+<ul>
+<li><code>stat_pointintervalh</code>:<code>spread_draws</code>や<code>spread_draws</code>でできた整然データをこの関数に流すことで点推定値と確信区間がプロットできます。geom_eye関数のときと同様に、引数<code>point_interval</code>で点推定値と確信区間にどれを使うか指定できます。また引数<code>.width</code>で確信区間の区間幅も指定可能です。</li>
+</ul>
+<pre class="r"><code>#市町村(r) 1:5までを表示
+fit %&gt;% spread_draws(theta[r]) %&gt;% 
+  filter(r==grep(&quot;市&quot;,dat$ct_name)[1:5])%&gt;% ggplot()+stat_pointintervalh(aes(y = r, x = theta),point_interval=median_hdci,.width=c(.66,0.96))</code></pre>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div class="section level4">
+<h4>パラメータの条件間比較</h4>
+<ul>
+<li><code>compare_levels</code>: この関数では,各条件の差の事後分布を求めてくれます。</li>
+</ul>
+<p>ここでは、地域<span class="math inline">\(r\)</span>(1から3)間のSMR(<span class="math inline">\(\theta\)</span>)の差を求めます。iterationごとに、条件間でのthetaの推定値の差を求める関数です。この結果をgeom_eyehやstat_intervalなどこれまで使い方を示してきた関数に流すと同様のプロットができます。美しい。</p>
+<pre class="r"><code>fit %&gt;%
+  spread_draws(theta[r]) %&gt;%
+  filter(r&lt;=3) %&gt;%
+  compare_levels(theta, by = r) %&gt;%
+  ggplot(aes(y = r, x = theta)) +
+  geom_halfeyeh()</code></pre>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div class="section level4">
+<h4>用途不明なドットプロット</h4>
+<p>かわいい以外に使い道が見出せずにいます本家のページに紹介されていたので紹介しておきます。かわいいです。</p>
+<pre class="r"><code>fit %&gt;%
+  spread_draws(theta[r]) %&gt;% 
+  filter(r==grep(&quot;市&quot;,dat$ct_name)[1:2])%&gt;% do(data_frame(theta = quantile(.$theta, ppoints(200)))) %&gt;%
+  ggplot(aes(x = theta)) +
+  geom_dotplot(binwidth = .02) +
+  facet_grid(r ~ .) +
+  scale_y_continuous(breaks = NULL)</code></pre>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+</div>
+<div class="section level4">
+<h4>他のパッケージとの橋渡し</h4>
+<p><code>tidybayes</code>パッケージでは、収束診断系の統計指標やプロットのための関数が用意されていません。それらはbayesplotで既にいい感じのんがあるからそっちにスムースにデータを送れるようにするのがいい、ということらしいです。</p>
+<ul>
+<li><code>unspread_draws</code>関数は, spread.draws関数で整然化したデータarray型に戻す関数です。これを使うと、array型のデータを読み込むbayesplotの関数にデータを送れます。</li>
+</ul>
+<p>例えば、一度’spread_draws’で整然化した後に、chain1だけが振る舞いがおかしかったので、その一つだけを外して自己相関などの収束結果を確認したいというとき、下記のようにできます。</p>
+<pre class="r"><code># filder 関数でchain 3だけ外したあとで、unspread_drawsでアレイ型にデータを戻してbaysplotのmcmc_acf関数にデータを流す
+
+library(bayesplot)
+
+fit %&gt;%
+  spread_draws(theta[r]) %&gt;% filter(.chain!=3) %&gt;% unspread_draws(theta[r],drop_indices=T) %&gt;% mcmc_acf(pars=c(&quot;theta[1]&quot;,&quot;theta[2]&quot;))</code></pre>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>ちなみにトレースプロットを書きたかったら、<code>spread_draws</code>からそのままggplotで軸を指定すればOKです。</p>
+<pre class="r"><code>fit %&gt;%
+  spread_draws(theta[r]) %&gt;% filter(.chain!=3,r==c(1:3)) %&gt;% 
+  ggplot(aes(x=.iteration,y=theta,group=as.factor(.chain),color=as.factor(.chain)))+geom_line(alpha=0.5)+facet_wrap(~r,ncol=1)</code></pre>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+</div>
+<div class="section level3">
+<h3>使用感</h3>
+<p>dplyrやggplotを使う人はとても使いやすいと思います。stanに内蔵されている可視化関数よりも自由度高くggplotで操作できる感覚があります。使用前ぶっちゃけあまり必要性を感じていませんでしたが、bayesplotなど他のパッケージとの橋渡し関数も周到に用意されているので、使いやすさUPです。</p>
+<p>今回の記事では関数を全て紹介しきれていません。特に今回は、事後予測分布のプロット関数や、回帰系の予測モデルのプロットに使える関数について触れていません(魅力的な関数が盛りだくさん!!)。それらも便利そうなので、またの機会に試してみて紹介したいと思います。</p>
+<p>Enjoy Stan with tidybayes!!</p>
+</div>
