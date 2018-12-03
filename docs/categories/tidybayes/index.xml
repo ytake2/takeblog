@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tidybayes on 竹林由武のブログ</title>
+    <link>/categories/tidybayes/</link>
+    <description>Recent content in Tidybayes on 竹林由武のブログ</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Mon, 03 Dec 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/tidybayes/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>tidybayesパッケージで推定結果の整然化</title>
+      <link>/2018/12/03/tidybayes/</link>
+      <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/12/03/tidybayes/</guid>
+      <description>今年も始まりましたね。Stanアドカレ。3年連続のエントリーとなりました。本記事は、Stan adventcalender 20183日目の記事になります。 2日目のHoj</description>
+    </item>
+    
+  </channel>
+</rss>

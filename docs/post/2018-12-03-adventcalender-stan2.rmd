@@ -1,0 +1,335 @@
+---
+title: "tidybayesパッケージで推定結果の整然化"
+author: TAKEbayeSHI
+date: '2018-12-03'
+slug: tidybayes
+categories: [R, tidybayes, stan]
+tags: []
+---
+
+```{r error=FALSE,echo=F}
+library(knitr)
+opts_chunk$set(message=FALSE,warning=F,error=F)
+```
+
+
+今年も始まりましたね。Stanアドカレ。3年連続のエントリーとなりました。本記事は、[Stan adventcalender 2018](https://qiita.com/advent-calendar/2018/stan)3日目の記事になります。
+
+2日目のHojoさんの記事で登場したbayesplotパッケージのように、Stanでモデリングした結果を扱いやすくしてくれるパッケージがいくつか出されています。ここでは、[`tidybayes`](http://mjskay.github.io/tidybayes/)パッケージを紹介したいと思います。
+
+
+[`tidybayes`](http://mjskay.github.io/tidybayes/)は,[ミシガン大学情報学部の助教 Matthew Kay](http://www.mjskay.com/)さんが開発したRのパッケージです。去年のアドカレで紹介したctmパッケージの開発もイケメンでしたが、これまたイケメンです。ちなみに昨日担当のHojoさんもイケメン(*´Д`)ﾊｧﾊｧです。
+
+![](http://www.mjskay.com/me.jpg)
+  
+  
+[`tidybayes`](http://mjskay.github.io/tidybayes/)の[HP](http://mjskay.github.io/tidybayes/)に飛ぶとこう書いています。  
+  
+
+> tidybayes: Bayesian analysis + tidy data + geoms
+
+
+Rstanやbrmsなどでベイズ推定の推定結果を整然データ化して、dplyrの関数群やggplotで扱いやすくするぜ、パイプ演算子でホイホイ繋いで行こうぜ、これがtidybayesの基本的な発想です。
+
+そもそも整然データとはなんぞや、という方は[こちらの記事](https://speakerdeck.com/fnshr/zheng-ran-detatutenani)や[こちらの本](https://www.amazon.co.jp/dp/4774198536/ref=as_li_ss_il?ie=UTF8&linkCode=li3&tag=heavywatal-22&linkId=f0acaf09c5bcbd85ee22c534caede9d1)をご参照ください。
+
+
+### 対応するパッケージ
+
+[`tidybayes`](http://mjskay.github.io/tidybayes/)は下記の主要なベイズ推定パッケージのオブジェクトに対応しています。  
+- rstan, brms, rstanarm, runjags, rjags, jagsUI, coda::mcmc and coda::mcmc.list, MCMCglmm
+
+ここでは、Stan advent calenderなので、Stanの推定結果を使っていきます。
+
+
+### 分析に使用するデータとモデル
+
+- 福島県の各市町村の平成24年の自殺者数と期待死亡数(福島県、[自殺関連指標を計算するエクセルシート]から整理)。なお、今回は例示のために適当な年度からデータをとってきており、平成24年を抽出したことに特別な意味はありません。また福島県のデータを扱っているのも、県で自殺数と期待死亡数をエクセルファイルで公表しているというデータのアクセスしやすさということで選んでいます。
+
+データは以下のように`.csv`ファイルから読み込みました。
+59の市区町村のデータが縦に並んでいるデータです。
+
+```{r}
+library(knitr)
+
+library(readxl)
+dat<-read_excel("Sdat/H25fukushima_suicide.xlsx")
+
+# d : 実自殺死亡数,exp_d:期待死亡数, area:行政区域
+kable(dat)
+```
+
+
+### 市町村レベルの標準化死亡比推定モデル
+
+#### 標準化死亡比  
+標準化死亡比 (Standardized Mortality Ratio)は、地域間での死亡率を比較する指標としてよく用いられる指標です。  
+  
+一般的には、当該地域の実際の死亡数$d$と、全国の年齢階級別死亡率と当該地域の死亡数かけて算出される期待死亡数$exp_d$の比をとって100かけた値,  
+
+$\frac{d}{exp_d}\times 100$,   
+
+がSMRになります。  
+
+100であれば全国平均と同一、100以下であれば全国より当該地域の死亡率が低い、100以上であれば全国より当該地域の死亡率が高いことを示しています。  
+なお、SMRは人口規模の小さい地域では変動が大きいという欠点があり、それを補うために、階層ベイズモデルを用いた縮約統計量の利活用が推奨されています。  
+  
+例えば、[関西大学の紺田先生による市町村レベルの標準化死亡比の階層モデルについての文献が勉強になります。[こちら](http://www.kansai-u.ac.jp/step/img/public/20140331/0331-1.pdf)や[こちら](http://www.myschedule.jp/jpa2014/tex_output/source/jpa2014_poster/90850.pdf)
+
+
+
+
+
+#### 市区町村の標準化死亡比を推定するpoisson-gammaモデル
+
+ここでは、上記の紺田先生のモデルに基づいて標準化死亡比を階層モデルを使って推定します。
+
+- 地域$i$の自殺発生数: $d_i$  
+- 地域$i$の期待死亡数: $exp\_d_i$  
+- 地域$i$の潜在的な標準化死亡比: $\theta_i$  
+
+possison-gamma モデル
+
+$$d_i \sim Poisson(exp\_d_i \theta_i)$$
+
+$\theta$の事前分布に、ガンマ分布指定し、
+
+$$ \theta_i \sim Gamma (\alpha, \beta) $$
+
+ガンマ分布の形状パラメータ($\alpha$)と尺度パラメータ($\beta$)には、指数分布とガンマ分布を指定します。
+
+$$\alpha \sim Exp (b_\alpha = 1), \beta \sim Gamma (a = 0.1, b_\beta = 1)$$
+
+#### stan コード
+このpoisson-gammaモデルの推定を行うためのstanコードは、以下のようになります。
+
+
+```{stan, output.var="yt",eval=F}
+data{
+  int r; // 地域数
+  int d[r]; //各地域の自殺発生数
+  real exp_d[r];　//各地域の期待死亡数
+}
+parameters{
+  real <lower=0> theta[r];
+  real <lower=0> alpha;
+  real <lower=0> beta;
+}
+
+model {
+  for(i in 1:r){
+    d[i] ~ poisson(exp_d[i]*theta[i]);
+    theta[i] ~ gamma(alpha,beta);
+  }
+  alpha ~ exponential(1);
+  beta ~ gamma(0.1,1);
+}
+
+generated quantities {
+  real RRmean; 
+  real RRvar;
+  RRmean = alpha/beta; // 市区町村の自殺相対リスクの県平均
+  RRvar = alpha/(beta^2); // 市区町村の自殺相対リスクの分散
+}
+
+```
+
+generated quantitiesブロックでは、gamma分布の性質利用して$\alpha$と$\beta$か県レベルの相対リスクの平均と分散を生成量として求めています。
+
+#### 推定の実行
+
+```{r,eval=F}
+library(rstan)
+
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+modelGP<-stan_model("Sdat/HPGmodel.stan")
+
+fit<-sampling(modelGP,data=list(d=dat$d,exp_d=dat$exp_d,r=nrow(dat)))
+
+```
+
+```{r,echo=F}
+#saveRDS(fit,"fit.Rds")
+fit<-readRDS("fit.Rds")
+```
+
+
+### ここからtidybayesの関数を紹介
+
+
+
+#### spread_draw関数
+
+tidybayesパッケージでは、ほぼ全ての場合において、ベイズ推定結果が格納されているオブジェクトをこの`spread_draws`関数に流すことから始まります。`stan`オブジェクトを`spread_draws`関数に落とすと下記のような整然データが得られます。
+
+```{r}
+library(tidyverse)
+library(tidybayes)
+
+fit %>%  spread_draws(theta[r], alpha,beta) %>% head(20)
+
+```
+
+chainごと、iterationごと、drawごと、地域(r)ごとのパラメータの推定結果が一つのtibble形式のデータフレームとして整理されます。パラメータが複数ある場合には、`gather_draws`関数を使って、変数群をlongフォーマットで整理することもできます(ggplotで可視化するときに便利です)。
+
+
+#### 事後分布の要約統計量系関数
+
+`tidybayes`パッケーでは、`spread_draws`もしくは`gather_draws`関数で整然化されたデータを下記の関数に流すことで、事後分布のようやく統計量の整然データを得ることができます。中央値、平均値、最頻値について、それぞれパーセンタイルに基づく方法と最高密度区間に基づく方法を選べます。
+
+- `median_hdci`: 中央値で最高密度区間
+- `mean_hdci`: 平均値で最高密度区間
+- `mode_hdci`: 最頻値で最高密度区間
+- `median_qi`: 中央値でパーセンタイル
+- `mean_qi`：平均値でパーセンタイル
+- `mode_qi`：最頻値でパーセンタイル
+
+
+試しに各市町村の潜在SMR$\theta$の事後分布の中央値と最高密度区間を抽出して見ます。
+
+```{r}
+fit %>% spread_draws(theta[r]) %>%
+   median_hdci()
+```
+
+簡単にstanオブジェクトから整然データが得られました。地域データなので、せっかくなので地図で可視化したいと思います。
+
+```{r}
+library(jpndistrict)
+fukushima<-jpndistrict::jpn_pref(pref_code="7")
+
+theta_bayes<-fit %>% spread_draws(theta[r]) %>% median_hdci()
+
+fukushima2<-data.frame(fukushima,theta_bayes,dat)
+
+fukushima2 %>% ggplot() +
+  geom_sf(aes(geometry = geometry,fill=theta),col = "white" )+
+  theme_bw()
+
+```
+
+
+dplyrの関数がパイプ演算子でそのまま使えるので、全ての市町村から市のデータ(r=1:13)だけを抽出したい場合に、filter関数で抽出することができます。
+
+
+```{r}
+fit %>% spread_draws(theta[r]) %>% 
+  filter(r==grep("市",dat$ct_name))%>%
+   median_hdci()
+```
+
+
+#### 事後分布のプロット関数
+
+- `geom_eyeh`:事後分布を両側に出します。
+
+- `geom_harlfeyeh`: 事後分布が片側だけに出ます
+
+
+どちらも事後分布と共に、点推定値と確信区間が表示されます。`geom_eyeh`,`geom_harlfeyeh`の引数、point_intervalで点推定値と確信区間にどれを使うか指定できます。また引数`.width`で確信区間の区間幅も指定可能です。
+
+```{r}
+
+fit %>% spread_draws(theta[r]) %>% 
+  filter(r==grep("市",dat$ct_name)[1:2])%>% ggplot()+geom_eyeh(aes(x=theta,y=as.factor(r)),point_interval=median_hdci,.width=c(.66,0.96))+ylab("City")
+
+fit %>% spread_draws(theta[r]) %>% 
+  filter(r==grep("市",dat$ct_name)[1:2])%>% ggplot()+geom_halfeyeh(aes(x=theta,y=as.factor(r)),point_interval=median_hdci,.width=c(.66,0.96))+ylab("City")
+  
+```
+
+#### モコモコしたくない人は区間推定のみのプロットも選択可能
+
+
+- `stat_pointintervalh`:`spread_draws`や`spread_draws`でできた整然データをこの関数に流すことで点推定値と確信区間がプロットできます。geom_eye関数のときと同様に、引数`point_interval`で点推定値と確信区間にどれを使うか指定できます。また引数`.width`で確信区間の区間幅も指定可能です。
+
+
+```{r}
+#市町村(r) 1:5までを表示
+fit %>% spread_draws(theta[r]) %>% 
+  filter(r==grep("市",dat$ct_name)[1:5])%>% ggplot()+stat_pointintervalh(aes(y = r, x = theta),point_interval=median_hdci,.width=c(.66,0.96))
+
+```
+
+#### パラメータの条件間比較
+
+- `compare_levels`: 
+この関数では,各条件の差の事後分布を求めてくれます。
+
+
+ここでは、地域$r$(1から3)間のSMR($\theta$)の差を求めます。iterationごとに、条件間でのthetaの推定値の差を求める関数です。この結果をgeom_eyehやstat_intervalなどこれまで使い方を示してきた関数に流すと同様のプロットができます。美しい。
+
+```{r}
+fit %>%
+  spread_draws(theta[r]) %>%
+  filter(r<=3) %>%
+  compare_levels(theta, by = r) %>%
+  ggplot(aes(y = r, x = theta)) +
+  geom_halfeyeh()
+```
+
+
+#### 用途不明なドットプロット
+
+かわいい以外に使い道が見出せずにいます本家のページに紹介されていたので紹介しておきます。かわいいです。
+
+```{r}
+fit %>%
+  spread_draws(theta[r]) %>% 
+  filter(r==grep("市",dat$ct_name)[1:2])%>% do(data_frame(theta = quantile(.$theta, ppoints(200)))) %>%
+  ggplot(aes(x = theta)) +
+  geom_dotplot(binwidth = .02) +
+  facet_grid(r ~ .) +
+  scale_y_continuous(breaks = NULL)
+
+```
+
+
+#### 他のパッケージとの橋渡し
+
+`tidybayes`パッケージでは、収束診断系の統計指標やプロットのための関数が用意されていません。それらはbayesplotで既にいい感じのんがあるからそっちにスムースにデータを送れるようにするのがいい、ということらしいです。
+
+- `unspread_draws`関数は, spread.draws関数で整然化したデータarray型に戻す関数です。これを使うと、array型のデータを読み込むbayesplotの関数にデータを送れます。
+
+例えば、一度'spread_draws'で整然化した後に、chain1だけが振る舞いがおかしかったので、その一つだけを外して自己相関などの収束結果を確認したいというとき、下記のようにできます。
+
+
+```{r}
+# filder 関数でchain 3だけ外したあとで、unspread_drawsでアレイ型にデータを戻してbaysplotのmcmc_acf関数にデータを流す
+
+library(bayesplot)
+
+fit %>%
+  spread_draws(theta[r]) %>% filter(.chain!=3) %>% unspread_draws(theta[r],drop_indices=T) %>% mcmc_acf(pars=c("theta[1]","theta[2]"))
+
+```
+
+
+ちなみにトレースプロットを書きたかったら、`spread_draws`からそのままggplotで軸を指定すればOKです。
+
+```{r}
+fit %>%
+  spread_draws(theta[r]) %>% filter(.chain!=3,r==c(1:3)) %>% 
+  ggplot(aes(x=.iteration,y=theta,group=as.factor(.chain),color=as.factor(.chain)))+geom_line(alpha=0.5)+facet_wrap(~r,ncol=1)
+```
+
+
+### 使用感
+
+dplyrやggplotを使う人はとても使いやすいと思います。stanに内蔵されている可視化関数よりも自由度高くggplotで操作できる感覚があります。使用前ぶっちゃけあまり必要性を感じていませんでしたが、bayesplotなど他のパッケージとの橋渡し関数も周到に用意されているので、使いやすさUPです。
+
+今回の記事では関数を全て紹介しきれていません。特に今回は、事後予測分布のプロット関数や、回帰系の予測モデルのプロットに使える関数について触れていません(魅力的な関数が盛りだくさん!!)。それらも便利そうなので、またの機会に試してみて紹介したいと思います。
+
+Enjoy Stan with tidybayes!! 
+
+
+
+
+
+
+
+
+
+

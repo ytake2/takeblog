@@ -32,7 +32,7 @@
     <item>
       <title>R</title>
       <link>/categories/r/</link>
-      <pubDate>Sat, 17 Dec 2016 21:13:14 -0500</pubDate>
+      <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/categories/r/</guid>
       <description></description>
@@ -50,7 +50,7 @@
     <item>
       <title>Stan</title>
       <link>/categories/stan/</link>
-      <pubDate>Sat, 17 Dec 2016 21:13:14 -0500</pubDate>
+      <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/categories/stan/</guid>
       <description></description>
@@ -71,6 +71,15 @@
       <pubDate>Thu, 02 Feb 2017 22:32:38 +0900</pubDate>
       
       <guid>/categories/symposium/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Tidybayes</title>
+      <link>/categories/tidybayes/</link>
+      <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/categories/tidybayes/</guid>
       <description></description>
     </item>
     
