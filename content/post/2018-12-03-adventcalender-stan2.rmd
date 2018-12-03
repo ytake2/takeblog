@@ -13,7 +13,7 @@ opts_chunk$set(message=FALSE,warning=F,error=F)
 ```
 
 
-今年も始まりましたね。Stanアドカレ。3年連続のエントリーとなりました。本記事は、[Stan adventcalender 2018](https://qiita.com/advent-calendar/2018/stan) 3日目の記事になります。
+今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、[Stan adventcalender 2018](https://qiita.com/advent-calendar/2018/stan) 3日目の記事になります。
 
 2日目のHojoさんの記事で登場したbayesplotパッケージのように、Stanでモデリングした結果を扱いやすくしてくれるパッケージがいくつか出されています。ここでは、[`tidybayes`](http://mjskay.github.io/tidybayes/)パッケージを紹介したいと思います。
 
