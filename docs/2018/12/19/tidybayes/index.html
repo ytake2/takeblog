@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ja-jp">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.40.3" />
+
+
+<title>単一事例実験データを変化点検出モデルで解析 - 竹林由武のブログ</title>
+<meta property="og:title" content="単一事例実験データを変化点検出モデルで解析 - 竹林由武のブログ">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="../../../../css/fonts.css" media="all">
+<link rel="stylesheet" href="../../../../css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="../../../../" class="nav-logo">
+    <img src="../../../../images/logo.jpg"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="../../../../about/">About</a></li>
+    
+    <li><a href="https://github.com/ytake2">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/psycle44">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">10 min read</span>
+    
+
+    <h1 class="article-title">単一事例実験データを変化点検出モデルで解析</h1>
+
+    
+    <span class="article-date">2018/12/19</span>
+    
+
+    <div class="article-content">
+      <p>本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 3日目の記事になります。</p>
+<p>ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介します。</p>
+<div class="section level3">
+<h3>単一事例実験デザイン</h3>
+<p>単一事例実験デザインは、心理学の中で、特に行動分析学または応用行動分析学の領域で良く用いられています。その特徴は、単一または少数の被験体(研究参加者)に対して、介入(または独立変数の操作)を導入する前後で繰り返しアウトカム測定を行い、介入前のベースライン期の測定値と介入導入後の一定期間の測定値を比較することで、介入とアウトカムの変化の因果的な関係性を検討することです。疫学的な研究デザインのうち、分割時系列デザイン(Interrupted time series design)や回帰分断デザイン (regression discontinuity design)といった準実験デザインの亜系に含まれます。個人の時系列データから介入とアウトカムの変化の関係性を検討することを行動分析学では<code>関数分析</code>や<code>機能分析</code>と呼ぶそうです(どちらもfunctional analysisの訳語です)。</p>
+<p>単一事例実験デザインには、ベースラインと介入期を単回または数回繰り返す<span class="math inline">\(AB^k\)</span>デザイン、複数の被験体に対して介入導入時期をずらして関数分析を行う多層ベースラインデザインなどが種類の異なるデザインがいくつかありますが、ここでは最も単純なベースラインと介入期が一つのみの<span class="math inline">\(AB\)</span>デザインを扱います。</p>
+<p>単一事例実験のデザインや解析方法に関しては、下記のスライド等参照していただけたらと思います。</p>
+<iframe src="https://www.slideshare.net/slideshow/embed_code/key/3pwHm7x8keig5O" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/yoshitaket/ss-123775624" title="単一事例研究法と統計的推測：ベイズ流アプローチを架け橋として" target="_blank">単一事例研究法と統計的推測：ベイズ流アプローチを架け橋として</a> </strong> from <strong><a href="https://www.slideshare.net/yoshitaket" target="_blank">Yoshitake Takebayashi</a></strong> </div>
+</div>
+<div class="section level2">
+<h2>分析データ</h2>
+<p>今回の解析に使用するデータは<code>OSF</code>で公開されているデータから拝借しました。<code>OSF</code>、素敵です。</p>
+<p>このデータは、軽度のうつや不安がある対象者10名に対して認知行動療法を導入し、その前後でアウトカムを反復測定して得られています。</p>
+<p><a href="https://osf.io/qegvr/">ここ</a>からダウンロードし加工したデータを<a href="https://osf.io/qegvr/">こちら</a>に置いてます。</p>
+<p>10名の参加者のデータを可視化しておきます。</p>
+<pre class="r"><code># データの読込
+dat&lt;-read.csv(&quot;test/ACTdata.csv&quot;)
+
+# プロット用関数
+row_plot&lt;-function(data){
+ ggplot(data)+ 
+      geom_line(aes(x=time,y=outcome1,group=treatment),size=1)+
+      geom_vline(
+        xintercept=which.max(
+          data$time[data$treatment==&quot;baseline&quot;])+0.5,
+        line,linetype=2)+
+      scale_x_continuous(breaks=1:nrow(data))+
+      theme_bw()+ ggtitle(paste0(&quot;subject &quot;,data$subject))
+}
+
+
+# subjectごとにデータをリスト化してmap関数でリストに上で作ったrow_plotをあてて、grid.arrange関数でひとまとめに表示
+
+dat %&gt;% split(list(.$subject)) %&gt;% map(row_plot) -&gt; row_plot_list 
+
+q0&lt;-arrangeGrob(grobs=row_plot_list) 
+grid.arrange(q0)</code></pre>
+<p><img src="../../../../post/CP_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>点線が介入を導入した時点で個々人で異なります。
+各参加者のベースライン期と介入期の平均も算出しておきます。</p>
+<pre class="r"><code>dat %&gt;% group_by(subject)%&gt;% filter(treatment==&quot;baseline&quot;) %&gt;% summarize(baseline=mean(outcome1)) -&gt; means
+
+dat %&gt;% group_by(subject,treatment)%&gt;%
+  summarize(mean=mean(outcome1)) %&gt;% spread(key=treatment,value=mean) %&gt;% kable(digits=2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">subject</th>
+<th align="right">baseline</th>
+<th align="right">treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">43.00</td>
+<td align="right">19.00</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">40.17</td>
+<td align="right">27.78</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">47.17</td>
+<td align="right">41.22</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">37.20</td>
+<td align="right">22.56</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">42.00</td>
+<td align="right">21.89</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">41.83</td>
+<td align="right">38.78</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">42.17</td>
+<td align="right">33.44</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="right">45.00</td>
+<td align="right">30.44</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="right">39.80</td>
+<td align="right">24.78</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">42.43</td>
+<td align="right">18.67</td>
+</tr>
+</tbody>
+</table>
+<p>subject5やsubject9は介入導入後に著しく得点が低下しており、介入の導入が即時的にアウトカムに影響を与えていそうです。一方、subject7についてみてみると、介入の導入前後で得点が近接しています。アウトカムの変化が介入の導入後に即時的に生じているわけではなさそうです。ただし、時点12くらいには得点の顕著な低下が見られます。この人にとっては、介入の効果が少し遅れて発現するのかもしれません。</p>
+<p>単純にベースライン期と介入期の平均の差を検討する場合に、subject5やsubject9の場合は問題なさそうですが、subject7については、介入の効果が遅れて発現することを考慮すると、効果が発現する前までの期間をベースライン、発現後の期間を介入期間にした方が介入の効果を適切に反映しているかもしれません。</p>
+<p>そこで、真の介入導入時点を未知のパラメータとしてデータドリブンに推定し、推定された介入導入時点前後でデータの平均を比較しよう、と言うのが今回のお話です。ここでは、顕著な得点の変化が生じた時点を推定するモデルである変化点検出モデルを使って推定します。</p>
+<p>なお、今回の推定の方法論は、下記の論文に従っています。変化点検出モデルを単一事例デザインに適用する意義やモデル詳細を知りたい人は参照ください。
+　　
+<a href="https://www.researchgate.net/publication/314950653_Bayesian_Unknown_Change-Point_Models_to_Investigate_Immediacy_in_Single_Case_Designs">Natesan, P., &amp; Hedges, L. V. (2017). Bayesian unknown change-point models to investigate immediacy in single case designs. Psychological methods, 22(4), 743.</a>
+　　
+　　</p>
+<div class="section level3">
+<h3>変化点検出モデル</h3>
+<p>各フェーズ<span class="math inline">\(p\)</span>(ベースライン期 or 介入期)における初めの観測値<span class="math inline">\(y_{p1}\)</span>が、平均<span class="math inline">\(\hat{y}_{p1}\)</span>,標準偏差<span class="math inline">\(\sigma^2_{\epsilon}\)</span>の正規分布に従うとします。</p>
+<p><span class="math display">\[y_{p1}\sim normal(\hat{y}_{p1},\sigma^2_\epsilon).\]</span></p>
+<p>そして、以降の時点<span class="math inline">\(t\)</span>におけるアウトカムの予測値は、</p>
+<p><span class="math display">\[y_{pt}|H_{pt-1}, \Theta \sim normal(\hat{y}_{pt|(pt-1)},\sigma^2_e),\]</span></p>
+<p>と正規分布に従うとします。</p>
+<p>パラメータは下記の通りです。</p>
+<ul>
+<li><span class="math inline">\(H_{pt-1}\)</span>: 過去の履歴<br />
+</li>
+<li><span class="math inline">\(\Theta\)</span>: パラメータベクトル<br />
+</li>
+<li><span class="math inline">\(\sigma^2_e\)</span>: ホワイトノイズ (ランダム誤差+自己相関)</li>
+<li><span class="math inline">\(\sigma^2_\epsilon\)</span>: ランダム誤差<br />
+</li>
+<li><span class="math inline">\(\rho\)</span>:隣接時点間の自己相関</li>
+</ul>
+<p>なお、<span class="math inline">\(\rho\)</span>,<span class="math inline">\(\sigma^2_e\)</span>と<span class="math inline">\(\sigma^2_\epsilon\)</span>の関係は、</p>
+<p><span class="math display">\[\sigma_e=\frac{\sigma_\epsilon}{\sqrt {1-\rho^2}}, \]</span></p>
+<p>で表現され、時系列データはラグ1の自己相関エラーを含む線形モデルとして下記のように表現可能となります。</p>
+</div>
+</div>
+<div class="section level2">
+<h2>線形モデルによる表現</h2>
+<p>アウトカムの予測値は各フェーズの切片<span class="math inline">\(\beta_{0p}\)</span>と残差で下記のように表現され,</p>
+<p><span class="math display">\[\hat{y}_{pt}=\beta_{0p}+e_{pt}, \]</span></p>
+<p>自己相関を含む残差は,</p>
+<p><span class="math display">\[e_{pt}=\rho e_{pt-1}+\epsilon, \]</span></p>
+<p>と表現されます。</p>
+<p>上記の2つの式のパラメータは下記の通りです。</p>
+<ul>
+<li><span class="math inline">\(\hat{y}_{pt}\)</span>：フェーズ<span class="math inline">\(p\)</span>の時点<span class="math inline">\(t\)</span>の標的行動の予測値<br />
+</li>
+<li><span class="math inline">\(\beta_{0p}\)</span>：フェーズ<span class="math inline">\(p\)</span>の回帰モデルの切片<br />
+</li>
+<li><span class="math inline">\(e_{pt}\)</span>：フェーズ<span class="math inline">\(p\)</span>の時点<span class="math inline">\(t\)</span>の誤差<br />
+</li>
+<li><span class="math inline">\(\rho\)</span>: 自己相関係数<br />
+</li>
+<li><span class="math inline">\(\epsilon\)</span>: 独立して分布する誤差</li>
+</ul>
+<p>ベースラインと介入期が1つのみのシンプルなABデザインの場合,ベースライン期の時点を<span class="math inline">\(1,2,...,t_b\)</span>とし、介入期の時点を<span class="math inline">\(t_{b+1},...,t_n\)</span>とします。</p>
+<p>各フェーズの<span class="math inline">\(\beta_{0p}\)</span>は、</p>
+<p><span class="math display">\[\begin{eqnarray}
+\beta_{0p}=\left\{ \begin{array}{ll}
+\beta_{01}, t \leqq t_bの場合\\
+\beta_{02}, その他の場合\\
+\end{array} \right.
+\end{eqnarray}, \]</span></p>
+<p>と表現されます。</p>
+<p>また、<span class="math inline">\(\beta_{0p}\)</span>は,</p>
+<p><span class="math display">\[\beta_{0p}=\beta_{01}*dummy+\beta_{02}*(1-dummy),\]</span>
+<span class="math display">\[ここで, dummy=step(t_{b}-t)\]</span></p>
+<p>と表現することができます。</p>
+<p>ステップ関数は、関数内の式の値が負であれば0をそれ以外は1をかえします(stanではint_step関数)。なので、dummyには、時点がベースラインフェーズにあれば1をそれ以外の場合には0が割り当てられます。</p>
+<p>このようなモデル式から, 介入導入時点を変化点<span class="math inline">\(t_b\)</span>として推定します。</p>
+<div id="ar1cp_ar1stan_code" class="section level3">
+<h3>変化点検出モデル+AR1(CP_AR1)のStan_code</h3>
+<p>参考論文内にJagsのコードが記載されていたので、それをStanに書き変えてみました。KMSコード(きっともっとシュッとするコード)で恐縮です。このコードでJagsの推定した結果とほぼ一致します。事前分布の設定も論文とあわせていますが、適宜変更しても良いでしょう。先に説明したモデルと、Stanで書いたモデルでパラメータ名が異なりますので念のため、再度書いておきます。わかりずらくてすみません。</p>
+<ul>
+<li>mu1: ベースラインの切片(平均)<br />
+</li>
+<li>mu2: 介入期の切片 (平均)<br />
+</li>
+<li>sigma: ホワイトノイズ<br />
+</li>
+<li>rho: 自己相関<br />
+</li>
+<li>es: 標準化効果量 (mu2-mu1/sigma)<br />
+</li>
+<li>tau: 周辺化消去で求める変化点</li>
+</ul>
+<pre class="stan"><code>data {
+    int&lt;lower=1&gt;T;
+    real y[T]; 
+}
+
+parameters {
+    real mu1;
+    real mu2;
+    real&lt;lower=0&gt; sigma;
+    real &lt;lower=-1,upper=1&gt; rho;
+}
+
+transformed parameters {
+      vector[T] log_p;
+      vector[T] x;
+      vector[T] dummy;
+      real mu;
+      log_p = rep_vector(-log(T), T);
+
+      for (tau in 1:T){
+        for (i in 1:T){
+          if (i == 1){
+            x[1] = 0;
+            dummy[1] = 1;
+            log_p[tau] = log_p[tau] + normal_lpdf(y[1] | mu1, sigma);
+            }else{
+              dummy[i] = int_step(tau-i);
+              x[i] = dummy[i] * mu1 + (1 - dummy[i]) * mu2;
+              mu = i &lt; tau ? x[i] : (x[i]+rho * (y[i - 1] - x[i - 1]));
+              log_p[tau] = log_p[tau] + normal_lpdf(y[i] | mu, sigma);
+              }
+        }
+    }
+}
+
+
+
+model {
+    mu1 ~ normal(0,100);
+    mu2 ~ normal(0,100);
+    rho ~ uniform(-1,1);
+    sigma ~uniform(0.1,5);
+    target += log_sum_exp(log_p);
+
+} 
+
+//Draw the discrete parameter tau. This is highly inefficient
+generated quantities {
+    int&lt;lower=1,upper=T&gt; tau;
+    real es;
+    tau = categorical_rng(softmax(log_p));
+    es = (mu2-mu1)/sigma;
+}
+</code></pre>
+<p>このモデルで推定を行うRコードは下記の通りです。subject5,7,9の3名それぞれにモデルを適用しています。purrrのmap関数が便利です。</p>
+<pre class="r"><code>fit&lt;-list()
+
+# map関数でlist型で3つのデータの推定をする為に関数化
+
+stan_list&lt;-function(data){
+
+y&lt;-data
+
+# 初期値に使うデータ
+b1&lt;- mean(y$outcome1[y$treatment==&quot;baseline&quot;],na.rm=T)
+b2 &lt;- mean(y$outcome1[y$treatment==&quot;treatment&quot;],na.rm=T)
+
+time &lt;- nrow(y)
+
+# 初期値の指定  
+initf1&lt;- function(){
+  list(mu1=rnorm(1, b1, 1),
+       mu2=rnorm(1,b2,1), 
+       sigma=runif(1,0.1,5),
+       rho=runif(1,-1,1),
+       tau=sample(3:(time-2),1))
+  }
+# stanによる推定の実行
+rstan::sampling(CP_ar1,data=list(y=y$outcome1, T=length(y$outcome1)),init=initf1, 
+         iter = 5000)
+
+}
+
+
+dat%&gt;% filter(subject==5|subject==7|subject==9)  %&gt;%  
+  split(.$subject) %&gt;% map(stan_list) -&gt; fit</code></pre>
+</div>
+<div class="section level3">
+<h3>推定結果</h3>
+<p>収束診断の結果は割愛しますが、推定対象のパラメータはすべて<span class="math inline">\(\hat{R}\)</span>が1.01以内で、問題なく収束していました。早速、変化点<span class="math inline">\(tau\)</span>の推定結果を見てみましょう。</p>
+<pre class="r"><code>tau_plot&lt;-function(data){
+  data %&gt;% spread_draws(tau)%&gt;% 
+    ggplot()+geom_histogram(aes(x=tau),fill=&quot;burlywood4&quot;,alpha=0.6)+theme_bw()+ 
+    xlim(1,15)
+}
+
+
+fit %&gt;% map(tau_plot) %&gt;% arrangeGrob(grobs=.)-&gt;q1
+
+
+q0_2&lt;-list(q0$grobs$`5`,q0$grobs$`7`,q0$grobs$`9`, 
+           q1$grobs$`5`,q1$grobs$`7`, q1$grobs$`9`)
+
+grid.arrange(grobs=q0_2,ncol=3)</code></pre>
+<p><img src="../../../../post/CP_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>上段がローデータで、下段が変化点の推定結果です。subjetc5,9は推定された変化点が実際の介入導入時点に集中しています。一方で、subject7は、実際の介入導入時点と推定された変化点に乖離がみられます。subject7の変化点は12に集中しています。確かにローデータをみると、介入導入時点では大きな得点の変化がなく時点11までズルズルと得点が推移しています。ここでは時点11までは、ベースラインを引きずっていて、介入効果は12の時点で発現した解釈することにします。</p>
+<p>ベースライン期と介入期の切片<span class="math inline">\(mu1,mu2\)</span>とその差を標準偏差<span class="math inline">\(sigma\)</span>で割った標準化効果量の推定結果をみてみましょう。標準化効果量は、<code>generated quntities</code>ブロックで<span class="math inline">\(mu1,mu2,sigma\)</span>から生成量として推定しています。</p>
+<p>左が各フェーズの切片の事後分布、右が標準化効果量の事後分布です。上からsubject5,7,9の推定結果になっています。いずれの対象者においても、明らかに各切片の事後分布の重複が少なく、標準化効果量の推定結果も95%確信区間に0を含んでいません。この3名について、推定された変化点の前後で顕著な得点の変化があったといえます。</p>
+<pre class="r"><code>es_plot&lt;-function(data){
+  data%&gt;% spread_draws(es) %&gt;% 
+    ggplot(aes(x=es,y=1,alpha=0.7))+ 
+    geom_halfeyeh(fill=&quot;purple&quot;)+theme_bw()+ 
+    theme(legend.position=&quot;none&quot;)
+}
+
+dif_plot&lt;-function(data){
+  data%&gt;% gather_draws(mu1,mu2) %&gt;% 
+    ggplot(aes(x=.value,y=.variable,fill=.variable,alpha=.5))+ 
+    geom_halfeyeh()+scale_fill_brewer(palette=&quot;Set1&quot;)+theme_bw()+ 
+    theme(legend.position=&quot;none&quot;)
+}
+
+
+fit %&gt;% map(es_plot) %&gt;% arrangeGrob(grobs=.) -&gt;q2
+fit %&gt;% map(dif_plot) %&gt;% arrangeGrob(grobs=.) -&gt;q3
+
+
+grid.arrange(q3,q2,ncol=2)</code></pre>
+<p><img src="../../../../post/CP_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>最後に自己相関<span class="math inline">\(rho\)</span>とホワイトノイズ<span class="math inline">\(sigma\)</span>の事後分布も確認してみましょう。左が自己相関、右がホワイトノイズです。いずれも推定結果の不確実性が大きく、特に自己相関の不確実性が大きくなります。これは、測定時点数が15時点と少ないことが大きな要因の一つでしょう。</p>
+<pre class="r"><code>rho_plot&lt;-function(data){
+  data%&gt;% spread_draws(rho) %&gt;% 
+    ggplot(aes(x=rho,y=1,alpha=0.6))+ 
+    geom_halfeyeh(fill=&quot;darkslategrey&quot;)+theme_bw()+ 
+    theme(legend.position=&quot;none&quot;)
+}
+
+sigma_plot&lt;-function(data){
+  data%&gt;% spread_draws(sigma) %&gt;% 
+    ggplot(aes(x=sigma,y=1,alpha=0.6))+ 
+    geom_halfeyeh(fill=&quot;darkslategrey&quot;)+theme_bw()+
+    theme(legend.position=&quot;none&quot;)
+}
+
+
+fit %&gt;% map(rho_plot) %&gt;% arrangeGrob(grobs=.)-&gt;q4
+fit %&gt;% map(sigma_plot) %&gt;% arrangeGrob(grobs=.)-&gt;q5
+
+grid.arrange(q4,q5,ncol=2)</code></pre>
+<p><img src="../../../../post/CP_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>最後にsubject5,7,9それぞれの5つのパラメータの事後分布の要約統計量を示しておきます。</p>
+<pre class="r"><code>pi_table&lt;-function(data){
+  data %&gt;%  gather_draws(rho,mu1,mu2,sigma,es) %&gt;%  
+    point_interval(.interval=hdi) 
+}
+
+fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),each=5)) %&gt;% kable(digits=2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">.variable</th>
+<th align="right">.value</th>
+<th align="right">.lower</th>
+<th align="right">.upper</th>
+<th align="right">.width</th>
+<th align="left">.point</th>
+<th align="left">.interval</th>
+<th align="right">subject</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">es</td>
+<td align="right">-6.77</td>
+<td align="right">-10.01</td>
+<td align="right">-3.62</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">5</td>
+</tr>
+<tr class="even">
+<td align="left">mu1</td>
+<td align="right">41.72</td>
+<td align="right">39.47</td>
+<td align="right">44.17</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
+<td align="left">mu2</td>
+<td align="right">22.69</td>
+<td align="right">18.68</td>
+<td align="right">28.48</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">5</td>
+</tr>
+<tr class="even">
+<td align="left">rho</td>
+<td align="right">0.61</td>
+<td align="right">0.06</td>
+<td align="right">1.00</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
+<td align="left">sigma</td>
+<td align="right">2.76</td>
+<td align="right">1.76</td>
+<td align="right">4.08</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">5</td>
+</tr>
+<tr class="even">
+<td align="left">es</td>
+<td align="right">-2.88</td>
+<td align="right">-4.49</td>
+<td align="right">-1.37</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">7</td>
+</tr>
+<tr class="odd">
+<td align="left">mu1</td>
+<td align="right">40.25</td>
+<td align="right">37.60</td>
+<td align="right">42.90</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">7</td>
+</tr>
+<tr class="even">
+<td align="left">mu2</td>
+<td align="right">28.79</td>
+<td align="right">23.12</td>
+<td align="right">34.00</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">7</td>
+</tr>
+<tr class="odd">
+<td align="left">rho</td>
+<td align="right">-0.08</td>
+<td align="right">-1.00</td>
+<td align="right">0.78</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">7</td>
+</tr>
+<tr class="even">
+<td align="left">sigma</td>
+<td align="right">4.09</td>
+<td align="right">3.13</td>
+<td align="right">5.00</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">7</td>
+</tr>
+<tr class="odd">
+<td align="left">es</td>
+<td align="right">-4.38</td>
+<td align="right">-7.01</td>
+<td align="right">-2.01</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">9</td>
+</tr>
+<tr class="even">
+<td align="left">mu1</td>
+<td align="right">39.28</td>
+<td align="right">36.25</td>
+<td align="right">42.59</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">9</td>
+</tr>
+<tr class="odd">
+<td align="left">mu2</td>
+<td align="right">25.02</td>
+<td align="right">20.98</td>
+<td align="right">30.56</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">9</td>
+</tr>
+<tr class="even">
+<td align="left">rho</td>
+<td align="right">0.28</td>
+<td align="right">-0.37</td>
+<td align="right">1.00</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">9</td>
+</tr>
+<tr class="odd">
+<td align="left">sigma</td>
+<td align="right">3.23</td>
+<td align="right">2.13</td>
+<td align="right">4.65</td>
+<td align="right">0.95</td>
+<td align="left">median</td>
+<td align="left">hdi</td>
+<td align="right">9</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3>終わりに</h3>
+<p>以上のように単一事例実験デザインで得られたデータを、変化点検出モデルを使って解析してみました。2017年に提案されたとても新しいモデルで、今後適用例が増えていくと楽しいですね。個々人の変化点を推定したあとで、その変化点からベースラインと介入フェーズを指定し直して、階層モデルを使って複数名の時系列データから標準化効果量を算出する方法なども提案されています。単一事例実験の解析は、ここ数年がいくつかベイズ流のモデルが提案されてきていて興味深い限りです。それらについても別な機会に紹介できたらと思います。</p>
+<p>Enjoy Stan !!</p>
+</div>
+<div id="session-info" class="section level3">
+<h3>session info</h3>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>## R version 3.5.0 (2018-04-23)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS High Sierra 10.13.3
+## 
+## Matrix products: default
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] ja_JP.UTF-8/ja_JP.UTF-8/ja_JP.UTF-8/C/ja_JP.UTF-8/ja_JP.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] bindrcpp_0.2.2      RColorBrewer_1.1-2  gridExtra_2.3      
+##  [4] rstan_2.18.1        StanHeaders_2.18.0  tidybayes_1.0.3    
+##  [7] forcats_0.3.0       stringr_1.3.1       dplyr_0.7.8        
+## [10] purrr_0.2.5         readr_1.1.1         tidyr_0.8.2        
+## [13] tibble_1.4.2        ggplot2_3.1.0       tidyverse_1.2.1    
+## [16] zousan_0.0.0.170825 knitr_1.21         
+## 
+## loaded via a namespace (and not attached):
+##  [1] httr_1.3.1                jsonlite_1.6             
+##  [3] modelr_0.1.2              assertthat_0.2.0         
+##  [5] highr_0.7                 stats4_3.5.0             
+##  [7] ggstance_0.3.1            cellranger_1.1.0         
+##  [9] yaml_2.2.0                pillar_1.3.0             
+## [11] backports_1.1.2           lattice_0.20-38          
+## [13] glue_1.3.0                arrayhelpers_1.0-20160527
+## [15] digest_0.6.18             rvest_0.3.2              
+## [17] colorspace_1.3-2          htmltools_0.3.6          
+## [19] plyr_1.8.4                pkgconfig_2.0.2          
+## [21] broom_0.5.0               HDInterval_0.2.0         
+## [23] svUnit_0.7-12             haven_1.1.2              
+## [25] bookdown_0.7              scales_1.0.0             
+## [27] processx_3.2.0            withr_2.1.2              
+## [29] lazyeval_0.2.1            cli_1.0.1                
+## [31] magrittr_1.5              crayon_1.3.4             
+## [33] readxl_1.1.0              evaluate_0.12            
+## [35] ps_1.2.1                  nlme_3.1-137             
+## [37] MASS_7.3-51.1             xml2_1.2.0               
+## [39] pkgbuild_1.0.2            blogdown_0.9             
+## [41] tools_3.5.0               loo_2.0.0                
+## [43] prettyunits_1.0.2         hms_0.4.2                
+## [45] matrixStats_0.54.0        munsell_0.5.0            
+## [47] callr_3.0.0               compiler_3.5.0           
+## [49] rlang_0.3.0.1             debugme_1.1.0            
+## [51] grid_3.5.0                RCurl_1.95-4.11          
+## [53] ggridges_0.5.1            rstudioapi_0.8           
+## [55] bitops_1.0-6              base64enc_0.1-3          
+## [57] labeling_0.3              rmarkdown_1.11           
+## [59] codetools_0.2-15          gtable_0.2.0             
+## [61] inline_0.3.15             R6_2.3.0                 
+## [63] lubridate_1.7.4           bindr_0.1.1              
+## [65] stringi_1.2.4             parallel_3.5.0           
+## [67] Rcpp_1.0.0                tidyselect_0.2.5         
+## [69] xfun_0.4                  coda_0.19-2</code></pre>
+</div>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="https://ytake2.github.io/Rsite/_site/index.html">Copyright © Yoshitake Takebayashi</a>
+          </li>
+
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="../../../../js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

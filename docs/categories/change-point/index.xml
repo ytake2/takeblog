@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Change Point on 竹林由武のブログ</title>
+    <link>/categories/change-point/</link>
+    <description>Recent content in Change Point on 竹林由武のブログ</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja-jp</language>
+    <lastBuildDate>Wed, 19 Dec 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/change-point/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>単一事例実験データを変化点検出モデルで解析</title>
+      <link>/2018/12/19/tidybayes/</link>
+      <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/12/19/tidybayes/</guid>
+      <description>本記事は、Stan adventcalender 2018 3日目の記事になります。 ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介します。</description>
+    </item>
+    
+  </channel>
+</rss>
