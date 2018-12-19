@@ -24,9 +24,9 @@ opts_chunk$set(message=FALSE,warning=F,error=F)
 ```
 
 
-本記事は、[Stan adventcalender 2018](https://qiita.com/advent-calendar/2018/stan) 3日目の記事になります。
+本記事は、[Stan adventcalender 2018](https://qiita.com/advent-calendar/2018/stan) 19日目の記事になります。
 
-ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介します。
+ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介してみます。
 
 ### 単一事例実験デザイン
 
