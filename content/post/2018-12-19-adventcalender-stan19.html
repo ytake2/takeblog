@@ -1,75 +1,15 @@
-<!DOCTYPE html>
-<html lang="ja-jp">
-  <head>
-    <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Hugo 0.40.3" />
-
-
-<title>単一事例実験データを変化点検出モデルで解析 - 竹林由武のブログ</title>
-<meta property="og:title" content="単一事例実験データを変化点検出モデルで解析 - 竹林由武のブログ">
-
-
-
-  
+---
+title: "単一事例実験データを変化点検出モデルで解析"
+author: TAKEbayeSHI
+date: '2018-12-19'
+slug: tidybayes
+categories: [R, stan, bayes, change-point]
+tags: []
+---
 
 
 
-
-
-
-
-
-<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
-
-
-
-<link rel="stylesheet" href="../../../../css/fonts.css" media="all">
-<link rel="stylesheet" href="../../../../css/main.css" media="all">
-
-
-
-  </head>
-  <body>
-    <div class="wrapper">
-      <header class="header">
-        <nav class="nav">
-  <a href="../../../../" class="nav-logo">
-    <img src="../../../../images/logo.jpg"
-         width="50"
-         height="50"
-         alt="Logo">
-  </a>
-
-  <ul class="nav-links">
-    
-    <li><a href="../../../../about/">About</a></li>
-    
-    <li><a href="https://github.com/ytake2">GitHub</a></li>
-    
-    <li><a href="https://twitter.com/psycle44">Twitter</a></li>
-    
-  </ul>
-</nav>
-
-      </header>
-
-
-<main class="content" role="main">
-
-  <article class="article">
-    
-    <span class="article-duration">10 min read</span>
-    
-
-    <h1 class="article-title">単一事例実験データを変化点検出モデルで解析</h1>
-
-    
-    <span class="article-date">2018/12/19</span>
-    
-
-    <div class="article-content">
-      <p>本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 19日目の記事になります。</p>
+<p>本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 19日目の記事になります。</p>
 <p>ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介してみます。</p>
 <div class="section level3">
 <h3>単一事例実験デザイン</h3>
@@ -106,7 +46,7 @@ dat %&gt;% split(list(.$subject)) %&gt;% map(row_plot) -&gt; row_plot_list
 
 q0&lt;-arrangeGrob(grobs=row_plot_list) 
 grid.arrange(q0)</code></pre>
-<p><img src="../../../../post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="/post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <p>点線が介入を導入した時点で個々人で異なります。
 各参加者のベースライン期と介入期の平均も算出しておきます。</p>
 <pre class="r"><code>dat %&gt;% group_by(subject)%&gt;% filter(treatment==&quot;baseline&quot;) %&gt;% summarize(baseline=mean(outcome1)) -&gt; means
@@ -359,7 +299,7 @@ q0_2&lt;-list(q0$grobs$`5`,q0$grobs$`7`,q0$grobs$`9`,
            q1$grobs$`5`,q1$grobs$`7`, q1$grobs$`9`)
 
 grid.arrange(grobs=q0_2,ncol=3)</code></pre>
-<p><img src="../../../../post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="/post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>上段がローデータで、下段が変化点の推定結果です。subjetc5,9は推定された変化点が実際の介入導入時点に集中しています。一方で、subject7は、実際の介入導入時点と推定された変化点に乖離がみられます。subject7の変化点は12に集中しています。確かにローデータをみると、介入導入時点では大きな得点の変化がなく時点11までズルズルと得点が推移しています。ここでは時点11までは、ベースラインを引きずっていて、介入効果は12の時点で発現した解釈することにします。</p>
 <p>ベースライン期と介入期の切片<span class="math inline">\(mu1,mu2\)</span>とその差を標準偏差<span class="math inline">\(sigma\)</span>で割った標準化効果量の推定結果をみてみましょう。標準化効果量は、<code>generated quntities</code>ブロックで<span class="math inline">\(mu1,mu2,sigma\)</span>から生成量として推定しています。</p>
 <p>左が各フェーズの切片の事後分布、右が標準化効果量の事後分布です。上からsubject5,7,9の推定結果になっています。いずれの対象者においても、明らかに各切片の事後分布の重複が少なく、標準化効果量の推定結果も95%確信区間に0を含んでいません。この3名について、推定された変化点の前後で顕著な得点の変化があったといえます。</p>
@@ -383,7 +323,7 @@ fit %&gt;% map(dif_plot) %&gt;% arrangeGrob(grobs=.) -&gt;q3
 
 
 grid.arrange(q3,q2,ncol=2)</code></pre>
-<p><img src="../../../../post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="/post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>最後に自己相関<span class="math inline">\(rho\)</span>とホワイトノイズ<span class="math inline">\(sigma\)</span>の事後分布も確認してみましょう。左が自己相関、右がホワイトノイズです。いずれも推定結果の不確実性が大きく、特に自己相関の不確実性が大きくなります。これは、測定時点数が15時点と少ないことが大きな要因の一つでしょう。</p>
 <pre class="r"><code>rho_plot&lt;-function(data){
   data%&gt;% spread_draws(rho) %&gt;% 
@@ -404,7 +344,7 @@ fit %&gt;% map(rho_plot) %&gt;% arrangeGrob(grobs=.)-&gt;q4
 fit %&gt;% map(sigma_plot) %&gt;% arrangeGrob(grobs=.)-&gt;q5
 
 grid.arrange(q4,q5,ncol=2)</code></pre>
-<p><img src="../../../../post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>最後にsubject5,7,9それぞれの5つのパラメータの事後分布の要約統計量を示しておきます。</p>
 <pre class="r"><code>pi_table&lt;-function(data){
   data %&gt;%  gather_draws(rho,mu1,mu2,sigma,es) %&gt;%  
@@ -647,45 +587,3 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 ## [69] xfun_0.4                  coda_0.19-2</code></pre>
 </div>
 </div>
-
-    </div>
-  </article>
-
-  
-
-
-</main>
-
-      <footer class="footer">
-        <ul class="footer-links">
-          <li>
-            <a href="https://ytake2.github.io/Rsite/_site/index.html">Copyright © Yoshitake Takebayashi</a>
-          </li>
-
-        </ul>
-      </footer>
-
-    </div>
-    
-
-
-
-<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
-
-
-
-<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
-<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
-<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
-
-
-
-    
-<script src="../../../../js/math-code.js"></script>
-<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-
-
-    
-  </body>
-</html>
-
