@@ -21,24 +21,6 @@
     </item>
     
     <item>
-      <title>単一事例実験データを変化点検出モデルで解析</title>
-      <link>/2018/12/19/tidybayes/</link>
-      <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/2018/12/19/tidybayes/</guid>
-      <description>本記事は、Stan adventcalender 2018 19日目の記事になります。 ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介してみ</description>
-    </item>
-    
-    <item>
-      <title>単一事例実験データを変化点検出モデルで解析</title>
-      <link>/2018/12/19/tidybayes/</link>
-      <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/2018/12/19/tidybayes/</guid>
-      <description>本記事は、Stan adventcalender 2018 19日目の記事になります。 ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介してみ</description>
-    </item>
-    
-    <item>
       <title>tidybayesパッケージで推定結果の整然化</title>
       <link>/2018/12/03/tidybayes/</link>
       <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
