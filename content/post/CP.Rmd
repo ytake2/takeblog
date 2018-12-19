@@ -3,7 +3,7 @@ title: "単一事例実験データを変化点検出モデルで解析"
 author: TAKEbayeSHI
 date: '2018-12-19'
 slug: tidybayes
-categories: [R, stan1, bayes, change-point]
+categories: [R, stan, bayes, change-point]
 tags: []
 ---
 

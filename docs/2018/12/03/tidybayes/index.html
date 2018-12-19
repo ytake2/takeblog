@@ -72,10 +72,7 @@
       <p>今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 3日目の記事になります。</p>
 <p>2日目のHojoさんの記事で登場したbayesplotパッケージのように、Stanでモデリングした結果を扱いやすくしてくれるパッケージがいくつか出されています。ここでは、<a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>パッケージを紹介したいと思います。</p>
 <p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>は,<a href="http://www.mjskay.com/">ミシガン大学情報学部の助教 Matthew Kay</a>さんが開発したRのパッケージです。去年のアドカレで紹介したctmパッケージの開発もイケメンでしたが、これまたイケメンです。ちなみに昨日担当のHojoさんもイケメン(*´Д`)ﾊｧﾊｧです。</p>
-<div class="figure">
-<img src="http://www.mjskay.com/me.jpg" />
-
-</div>
+<p><img src="http://www.mjskay.com/me.jpg" /></p>
 <p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>の<a href="http://mjskay.github.io/tidybayes/">HP</a>に飛ぶとこう書いています。</p>
 <blockquote>
 <p>tidybayes: Bayesian analysis + tidy data + geoms</p>
@@ -93,7 +90,8 @@
 <ul>
 <li>福島県の各市町村の平成24年の自殺者数と期待死亡数(福島県、<a href="https://www.pref.fukushima.lg.jp/sec/21840a/s-statistics-ctv.html">自殺関連指標を計算するエクセルシート</a>から整理)。なお、今回は例示のために適当な年度からデータをとってきており、平成24年を抽出したことに特別な意味はありません。また福島県のデータを扱っているのも、県で自殺数と期待死亡数をエクセルファイルで公表しているというデータのアクセスしやすさということで選んでいます。</li>
 </ul>
-<p>データは以下のように<code>.csv</code>ファイルから読み込みました。 59の市区町村のデータが縦に並んでいるデータです。</p>
+<p>データは以下のように<code>.csv</code>ファイルから読み込みました。
+59の市区町村のデータが縦に並んでいるデータです。</p>
 <p>今回の分析に必要なデータやスクリプトは<a href="https://github.com/ytake2/takeblog/tree/master/content/post/Sdat">こちらから</a></p>
 <pre class="r"><code>library(knitr)
 
@@ -594,16 +592,16 @@ fit %&gt;%  spread_draws(theta[r], alpha,beta) %&gt;% head(20)</code></pre>
 <pre><code>## # A tibble: 59 x 7
 ##        r theta .lower .upper .width .point .interval
 ##    &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
-##  1     1 0.778  0.556  0.999  0.950 median hdci     
-##  2     2 1.00   0.668  1.41   0.950 median hdci     
-##  3     3 2.22   1.71   2.78   0.950 median hdci     
-##  4     4 1.01   0.784  1.26   0.950 median hdci     
-##  5     5 1.28   0.746  1.85   0.950 median hdci     
-##  6     6 1.14   0.699  1.62   0.950 median hdci     
-##  7     7 1.06   0.546  1.64   0.950 median hdci     
-##  8     8 1.29   0.650  1.99   0.950 median hdci     
-##  9     9 1.10   0.622  1.65   0.950 median hdci     
-## 10    10 1.46   0.824  2.18   0.950 median hdci     
+##  1     1 0.778  0.556  0.999   0.95 median hdci     
+##  2     2 1.00   0.668  1.41    0.95 median hdci     
+##  3     3 2.22   1.71   2.78    0.95 median hdci     
+##  4     4 1.01   0.784  1.26    0.95 median hdci     
+##  5     5 1.28   0.746  1.85    0.95 median hdci     
+##  6     6 1.14   0.699  1.62    0.95 median hdci     
+##  7     7 1.06   0.546  1.64    0.95 median hdci     
+##  8     8 1.29   0.650  1.99    0.95 median hdci     
+##  9     9 1.10   0.622  1.65    0.95 median hdci     
+## 10    10 1.46   0.824  2.18    0.95 median hdci     
 ## # ... with 49 more rows</code></pre>
 <p>簡単にstanオブジェクトから整然データが得られました。地域データなので、せっかくなので地図で可視化したいと思います。</p>
 <pre class="r"><code>library(jpndistrict)
@@ -624,19 +622,19 @@ fukushima2 %&gt;% ggplot() +
 <pre><code>## # A tibble: 13 x 7
 ##        r theta .lower .upper .width .point .interval
 ##    &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
-##  1     1 0.765  0.582  0.997  0.950 median hdci     
-##  2     2 0.992  0.673  1.36   0.950 median hdci     
-##  3     3 2.22   1.65   2.66   0.950 median hdci     
-##  4     4 0.997  0.798  1.27   0.950 median hdci     
-##  5     5 1.24   0.849  1.85   0.950 median hdci     
-##  6     6 1.15   0.710  1.63   0.950 median hdci     
-##  7     7 1.05   0.557  1.53   0.950 median hdci     
-##  8     8 1.24   0.665  2.03   0.950 median hdci     
-##  9     9 1.09   0.623  1.60   0.950 median hdci     
-## 10    10 1.50   0.884  2.11   0.950 median hdci     
-## 11    11 1.24   0.793  1.84   0.950 median hdci     
-## 12    12 1.25   0.699  1.76   0.950 median hdci     
-## 13    13 1.03   0.511  1.76   0.950 median hdci</code></pre>
+##  1     1 0.765  0.582  0.997   0.95 median hdci     
+##  2     2 0.992  0.673  1.36    0.95 median hdci     
+##  3     3 2.22   1.65   2.66    0.95 median hdci     
+##  4     4 0.997  0.798  1.27    0.95 median hdci     
+##  5     5 1.24   0.849  1.85    0.95 median hdci     
+##  6     6 1.15   0.710  1.63    0.95 median hdci     
+##  7     7 1.05   0.557  1.53    0.95 median hdci     
+##  8     8 1.24   0.665  2.03    0.95 median hdci     
+##  9     9 1.09   0.623  1.60    0.95 median hdci     
+## 10    10 1.50   0.884  2.11    0.95 median hdci     
+## 11    11 1.24   0.793  1.84    0.95 median hdci     
+## 12    12 1.25   0.699  1.76    0.95 median hdci     
+## 13    13 1.03   0.511  1.76    0.95 median hdci</code></pre>
 </div>
 <div class="section level4">
 <h4>事後分布のプロット関数</h4>
@@ -665,7 +663,8 @@ fit %&gt;% spread_draws(theta[r]) %&gt;%
 <div class="section level4">
 <h4>パラメータの条件間比較</h4>
 <ul>
-<li><code>compare_levels</code>: この関数では,各条件の差の事後分布を求めてくれます。</li>
+<li><code>compare_levels</code>:
+この関数では,各条件の差の事後分布を求めてくれます。</li>
 </ul>
 <p>ここでは、地域<span class="math inline">\(r\)</span>(1から3)間のSMR(<span class="math inline">\(\theta\)</span>)の差を求めます。iterationごとに、条件間でのthetaの推定値の差を求める関数です。この結果をgeom_eyehやstat_intervalなどこれまで使い方を示してきた関数に流すと同様のプロットができます。美しい。</p>
 <pre class="r"><code>fit %&gt;%
