@@ -47,7 +47,7 @@ embed_slide("https://www.slideshare.net/yoshitaket/ss-123775624")
 
 このデータは、軽度のうつや不安がある対象者10名に対して認知行動療法を導入し、その前後でアウトカムを反復測定して得られています。
 
-[ここ](https://osf.io/qegvr/)からダウンロードし加工したデータを[こちら](https://osf.io/qegvr/)に置いてます。
+[ここ](https://osf.io/qegvr/)からダウンロードし加工したデータを[こちら](https://github.com/ytake2/takeblog/blob/master/content/post/test/ACTdata.csv)に置いてます。
 
 
 10名の参加者のデータを可視化しておきます。
