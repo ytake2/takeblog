@@ -6,10 +6,19 @@
     <description>Recent content in Posts on 竹林由武のブログ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
-    <lastBuildDate>Wed, 19 Dec 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 09 Aug 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>国立精神・神経医療研究センター認知行動療法センター 研究員の募集</title>
+      <link>/2019/08/09/research-assistant/</link>
+      <pubDate>Fri, 09 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/08/09/research-assistant/</guid>
+      <description>共同で研究をさせていただいている、国立精神・神経医療研究センタの認知行動療法センターで、認知行動療法の臨床研究のご協力いただける方を募集して</description>
+    </item>
     
     <item>
       <title>単一事例実験データを変化点検出モデルで解析</title>
@@ -17,7 +26,7 @@
       <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/12/19/tidybayes/</guid>
-      <description>本記事は、Stan adventcalender 2018 19日目の記事になります。 ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介してみ</description>
+      <description>## Warning: パッケージ &amp;#39;knitr&amp;#39; はバージョン 3.5.2 の R の下で造られました ## Warning: パッケージ &amp;#39;tibble&amp;#39; はバージョン 3.5.2 の R の下で造られました ## Warning: パッケージ &amp;#39;tidyr&amp;#39; はバージョン 3.5.2 の R の</description>
     </item>
     
     <item>
@@ -26,7 +35,7 @@
       <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/12/03/tidybayes/</guid>
-      <description>今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、Stan adventcalender 2018 3日目の記事になります。 2日目のHojoさ</description>
+      <description>## Warning: パッケージ &amp;#39;knitr&amp;#39; はバージョン 3.5.2 の R の下で造られました 今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、S</description>
     </item>
     
     <item>
@@ -54,6 +63,15 @@
       
       <guid>/2016/12/17/stan%E3%81%A7lda/</guid>
       <description>#library(RWordPress) #library(XMLRPC) library(RISmed) library(tm) library(wordcloud2) library(RColorBrewer) library(topicmodels) wordcloud この記事はStanアドカレ14日目のエントリーです。今回のテーマはwordcloud、LDAです。wordcloudはしたの</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>/1/01/01/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/1/01/01/</guid>
+      <description>国立精神・神経医療研究センター認知行動療法センター 研究員の募集 /*! jQuery v1.11.3 | (c) 2005, 2015 jQuery Foundation, Inc. | jquery.org/license */ !function(a,b){&#34;object&#34;==typeof module&amp;&amp;&#34;object&#34;==typeof module.exports?module.exports=a.document?b(a,!0):function(a){if(!a.document)throw new Error(&#34;jQuery requires a window with a document&#34;);return b(a)}:b(a)}(&#34;undefined&#34;!=typeof window?window:this,function(a,b){var c=[],d=c.slice,e=c.concat,f=c.push,g=c.indexOf,h={},i=h.toString,j=h.hasOwnProperty,k={},l=&#34;1.11.3&#34;,m=function(a,b){return new m.fn.init(a,b)},n=/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,o=/^-ms-/,p=/-([\da-z])/gi,q=function(a,b){return b.toUpperCase()};m.fn=m.prototype={jquery:l,constructor:m,selector:&#34;&#34;,length:0,toArray:function(){return d.call(this)},get:function(a){return null!=a?0a?this[a+this.length]:this[a]:d.call(this)},pushStack:function(a){var b=m.merge(this.constructor(),a);return b.prevObject=this,b.context=this.context,b},each:function(a,b){return m.each(this,a,b)},map:function(a){return this.pushStack(m.map(this,function(b,c){return a.call(b,c,b)}))},slice:function(){return this.pushStack(d.apply(this,arguments))},first:function(){return this.eq(0)},last:function(){return</description>
     </item>
     
     <item>

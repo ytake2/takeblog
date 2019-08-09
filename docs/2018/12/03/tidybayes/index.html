@@ -69,7 +69,8 @@
     
 
     <div class="article-content">
-      <p>今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 3日目の記事になります。</p>
+      <pre><code>## Warning: パッケージ &#39;knitr&#39; はバージョン 3.5.2 の R の下で造られました</code></pre>
+<p>今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 3日目の記事になります。</p>
 <p>2日目のHojoさんの記事で登場したbayesplotパッケージのように、Stanでモデリングした結果を扱いやすくしてくれるパッケージがいくつか出されています。ここでは、<a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>パッケージを紹介したいと思います。</p>
 <p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>は,<a href="http://www.mjskay.com/">ミシガン大学情報学部の助教 Matthew Kay</a>さんが開発したRのパッケージです。去年のアドカレで紹介したctmパッケージの開発もイケメンでしたが、これまたイケメンです。ちなみに昨日担当のHojoさんもイケメン(*´Д`)ﾊｧﾊｧです。</p>
 <p><img src="http://www.mjskay.com/me.jpg" /></p>
@@ -602,7 +603,7 @@ fit %&gt;%  spread_draws(theta[r], alpha,beta) %&gt;% head(20)</code></pre>
 ##  8     8 1.29   0.650  1.99    0.95 median hdci     
 ##  9     9 1.10   0.622  1.65    0.95 median hdci     
 ## 10    10 1.46   0.824  2.18    0.95 median hdci     
-## # ... with 49 more rows</code></pre>
+## # … with 49 more rows</code></pre>
 <p>簡単にstanオブジェクトから整然データが得られました。地域データなので、せっかくなので地図で可視化したいと思います。</p>
 <pre class="r"><code>library(jpndistrict)
 fukushima&lt;-jpndistrict::jpn_pref(pref_code=&quot;7&quot;)
@@ -614,7 +615,7 @@ fukushima2&lt;-data.frame(fukushima,theta_bayes,dat)
 fukushima2 %&gt;% ggplot() +
   geom_sf(aes(geometry = geometry,fill=theta),col = &quot;white&quot; )+
   theme_bw()</code></pre>
-<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>dplyrの関数がパイプ演算子でそのまま使えるので、全ての市町村から市のデータ(r=1:13)だけを抽出したい場合に、filter関数で抽出することができます。</p>
 <pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
   filter(r==grep(&quot;市&quot;,dat$ct_name))%&gt;%
@@ -645,10 +646,10 @@ fukushima2 %&gt;% ggplot() +
 <p>どちらも事後分布と共に、点推定値と確信区間が表示されます。<code>geom_eyeh</code>,<code>geom_harlfeyeh</code>の引数、point_intervalで点推定値と確信区間にどれを使うか指定できます。また引数<code>.width</code>で確信区間の区間幅も指定可能です。</p>
 <pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
   filter(r==grep(&quot;市&quot;,dat$ct_name)[1:2])%&gt;% ggplot()+geom_eyeh(aes(x=theta,y=as.factor(r)),point_interval=median_hdci,.width=c(.66,0.96))+ylab(&quot;City&quot;)</code></pre>
-<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
   filter(r==grep(&quot;市&quot;,dat$ct_name)[1:2])%&gt;% ggplot()+geom_halfeyeh(aes(x=theta,y=as.factor(r)),point_interval=median_hdci,.width=c(.66,0.96))+ylab(&quot;City&quot;)</code></pre>
-<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
 </div>
 <div class="section level4">
 <h4>モコモコしたくない人は区間推定のみのプロットも選択可能</h4>
@@ -658,7 +659,7 @@ fukushima2 %&gt;% ggplot() +
 <pre class="r"><code>#市町村(r) 1:5までを表示
 fit %&gt;% spread_draws(theta[r]) %&gt;% 
   filter(r==grep(&quot;市&quot;,dat$ct_name)[1:5])%&gt;% ggplot()+stat_pointintervalh(aes(y = r, x = theta),point_interval=median_hdci,.width=c(.66,0.96))</code></pre>
-<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
 <div class="section level4">
 <h4>パラメータの条件間比較</h4>
@@ -673,7 +674,7 @@ fit %&gt;% spread_draws(theta[r]) %&gt;%
   compare_levels(theta, by = r) %&gt;%
   ggplot(aes(y = r, x = theta)) +
   geom_halfeyeh()</code></pre>
-<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
 <div class="section level4">
 <h4>用途不明なドットプロット</h4>
@@ -685,7 +686,7 @@ fit %&gt;% spread_draws(theta[r]) %&gt;%
   geom_dotplot(binwidth = .02) +
   facet_grid(r ~ .) +
   scale_y_continuous(breaks = NULL)</code></pre>
-<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
 <div class="section level4">
 <h4>他のパッケージとの橋渡し</h4>
@@ -700,12 +701,12 @@ library(bayesplot)
 
 fit %&gt;%
   spread_draws(theta[r]) %&gt;% filter(.chain!=3) %&gt;% unspread_draws(theta[r],drop_indices=T) %&gt;% mcmc_acf(pars=c(&quot;theta[1]&quot;,&quot;theta[2]&quot;))</code></pre>
-<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>ちなみにトレースプロットを書きたかったら、<code>spread_draws</code>からそのままggplotで軸を指定すればOKです。</p>
 <pre class="r"><code>fit %&gt;%
   spread_draws(theta[r]) %&gt;% filter(.chain!=3,r==c(1:3)) %&gt;% 
   ggplot(aes(x=.iteration,y=theta,group=as.factor(.chain),color=as.factor(.chain)))+geom_line(alpha=0.5)+facet_wrap(~r,ncol=1)</code></pre>
-<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
 </div>
 <div class="section level3">
