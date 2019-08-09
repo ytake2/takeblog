@@ -18,9 +18,9 @@ tags: []
 
 
 
-[修士課程在籍から応募可能](https://www.ncnp.go.jp/recruit/detail.html?no=812)
+募集要項1:[(修士課程在籍から応募可能)](https://www.ncnp.go.jp/recruit/detail.html?no=812)
 
-[博士課程在籍から応募可能](https://www.ncnp.go.jp/recruit/detail.html?no=813)
+募集要項2:[(博士課程在籍から応募可能)](https://www.ncnp.go.jp/recruit/detail.html?no=813)
 
 
 週３日程度と募集要項には記載していますが、勤務時間に関して応相談で週２日などでも可能です。
