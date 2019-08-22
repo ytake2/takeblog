@@ -12,7 +12,7 @@
     
     
     <item>
-      <title>Bayes</title>
+      <title>bayes</title>
       <link>/categories/bayes/</link>
       <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
       
@@ -21,29 +21,11 @@
     </item>
     
     <item>
-      <title>Blogdown</title>
-      <link>/categories/blogdown/</link>
-      <pubDate>Sun, 25 Dec 2016 14:21:35 +0900</pubDate>
-      
-      <guid>/categories/blogdown/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Change Point</title>
+      <title>change-point</title>
       <link>/categories/change-point/</link>
       <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/categories/change-point/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Lda</title>
-      <link>/categories/lda/</link>
-      <pubDate>Sat, 17 Dec 2016 21:13:14 -0500</pubDate>
-      
-      <guid>/categories/lda/</guid>
       <description></description>
     </item>
     
@@ -57,16 +39,7 @@
     </item>
     
     <item>
-      <title>Rstudio</title>
-      <link>/categories/rstudio/</link>
-      <pubDate>Sun, 25 Dec 2016 14:21:35 +0900</pubDate>
-      
-      <guid>/categories/rstudio/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Stan</title>
+      <title>stan</title>
       <link>/categories/stan/</link>
       <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
       
@@ -75,7 +48,16 @@
     </item>
     
     <item>
-      <title>Suicide</title>
+      <title>tidybayes</title>
+      <link>/categories/tidybayes/</link>
+      <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/categories/tidybayes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>suicide</title>
       <link>/categories/suicide/</link>
       <pubDate>Thu, 02 Feb 2017 22:32:38 +0900</pubDate>
       
@@ -84,7 +66,7 @@
     </item>
     
     <item>
-      <title>Symposium</title>
+      <title>symposium</title>
       <link>/categories/symposium/</link>
       <pubDate>Thu, 02 Feb 2017 22:32:38 +0900</pubDate>
       
@@ -93,11 +75,29 @@
     </item>
     
     <item>
-      <title>Tidybayes</title>
-      <link>/categories/tidybayes/</link>
-      <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
+      <title>blogdown</title>
+      <link>/categories/blogdown/</link>
+      <pubDate>Sun, 25 Dec 2016 14:21:35 +0900</pubDate>
       
-      <guid>/categories/tidybayes/</guid>
+      <guid>/categories/blogdown/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>RStudio</title>
+      <link>/categories/rstudio/</link>
+      <pubDate>Sun, 25 Dec 2016 14:21:35 +0900</pubDate>
+      
+      <guid>/categories/rstudio/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>LDA</title>
+      <link>/categories/lda/</link>
+      <pubDate>Sat, 17 Dec 2016 21:13:14 -0500</pubDate>
+      
+      <guid>/categories/lda/</guid>
       <description></description>
     </item>
     

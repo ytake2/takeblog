@@ -4,3 +4,4 @@ library(blogdown)
 
 build_site()
 serve_site()
+blogdown::new_post("research_assistant")
