@@ -12,10 +12,15 @@ tags: []
 今月末から、日本認知・行動療法学会 (JABCT)45回大会が開催されます。
 大会3日目 9月1日9時から下記の自主企画シンポジウムが開催されます。
 下記のシンポジウムでは、学会運用に関するご意見をオープンに収集、
-議論することが主眼となります。  
+議論することが主眼となります。    
 
 当日はリアルタイムに投稿可能なアプリケーションのURLを公開し、
-そこでも意見を収集いたしいます。
+そこでも意見を収集いたしいます。    
+   
+多くの方にご意見をいただけたらと思い、話題提供者の発表資料を、
+事前に公開することといたしました。  
+  
+当日、会場または会場外から議論にご参加いただけましたら幸いです。
 
 
 -----
@@ -31,26 +36,18 @@ tags: []
 [竹林由武（福島県立医科大学）  ](https://ytake2.github.io/Rsite/_site/index.html)  
 
 [「認知・行動療法研究の価値を高める仕掛け」](https://ytake2.github.io/takeblog/post/img/takebayashi.pdf)  
+  
 
-
-![ ](https://ytake2.github.io/takeblog/post/img/takebayashiTp.png/)  
-
-
-
-[谷口敏淳（一般社団法人Psychoro）](https://psychoro.org/)  
+[谷口敏淳（一般社団法人Psychoro）](https://psychoro.org/)  ß
 
 [「アカデミアと臨床現場をつなぐプラットフォーム構築案」](https://ytake2.github.io/takeblog/post/img/taniguchi.pdf)  
   
-![ ](https://ytake2.github.io/takeblog/post/img/taniguchiTp.png/)  
-
   
   
   
 [横光健吾 （立命館大学）](https://psychoro.org/)  
 
 [「若手をより輝かせ、成長させる活躍の場」](https://ytake2.github.io/takeblog/post/img/yokomitsu.pdf)  
-
-![ ](https://ytake2.github.io/takeblog/post/img/yokomitsuTp.png/)  
 
 
 
