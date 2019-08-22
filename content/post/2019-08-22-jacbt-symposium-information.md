@@ -33,33 +33,22 @@ tags: []
 [「認知・行動療法研究の価値を高める仕掛け」](https://ytake2.github.io/takeblog/post/img/takebayashi.pdf)  
   
   
-```{r, echo=F,out.width = "400px"}
-library(knitr)
-knitr::include_graphics("https://ytake2.github.io/takeblog/post/img/takebayashiTp.png")
-```
+![ ](https://ytake2.github.io/takeblog/post/img/takebayashiTp.png){out.width=100px}  
 
 [谷口敏淳（一般社団法人Psychoro）](https://psychoro.org/)  
 
 [「アカデミアと臨床現場をつなぐプラットフォーム構築案」](https://ytake2.github.io/takeblog/post/img/taniguchi.pdf)  
   
   
-```{r, echo=F,out.width = "400px"}
-
-knitr::include_graphics("https://ytake2.github.io/takeblog/post/img/taniguchiTp.png")
-```
-
+![ ](https://ytake2.github.io/takeblog/post/img/taniguchiTp.png){out.width=100px}  
+  
+  
 [横光健吾 （立命館大学）](https://psychoro.org/)  
 
 [「若手をより輝かせ、成長させる活躍の場」](https://ytake2.github.io/takeblog/post/img/yokomitsu.pdf)  
 
+![ ](https://ytake2.github.io/takeblog/post/img/yokomitsuTp.png){out.width=100px}  
 
-```{r, echo=F, out.width = "400px"}
-
-knitr::include_graphics("https://ytake2.github.io/takeblog/post/img/yokomitsuTp.png")
-```
-
-
-  
 
 
 #### コメンテーター
