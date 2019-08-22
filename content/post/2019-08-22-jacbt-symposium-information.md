@@ -45,7 +45,7 @@ tags: []
   
   
   
-[横光健吾 （立命館大学）](https://psychoro.org/)  
+[横光健吾 （立命館大学）](http://www.ritsumei.ac.jp/psy/teacher/yokomitsu/)  
 
 [「若手をより輝かせ、成長させる活躍の場」](https://ytake2.github.io/takeblog/post/img/yokomitsu.pdf)  
 
