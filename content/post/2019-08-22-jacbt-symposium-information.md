@@ -38,7 +38,7 @@ tags: []
 [「認知・行動療法研究の価値を高める仕掛け」](https://ytake2.github.io/takeblog/post/img/takebayashi.pdf)  
   
 
-[谷口敏淳（一般社団法人Psychoro）](https://psychoro.org/)  ß
+[谷口敏淳（一般社団法人Psychoro）](https://psychoro.org/)   
 
 [「アカデミアと臨床現場をつなぐプラットフォーム構築案」](https://ytake2.github.io/takeblog/post/img/taniguchi.pdf)  
   
