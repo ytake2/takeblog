@@ -72,7 +72,6 @@
       
 
 
-<pre><code>## Warning: パッケージ &#39;knitr&#39; はバージョン 3.5.2 の R の下で造られました</code></pre>
 <p>今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 3日目の記事になります。</p>
 <p>2日目のHojoさんの記事で登場したbayesplotパッケージのように、Stanでモデリングした結果を扱いやすくしてくれるパッケージがいくつか出されています。ここでは、<a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>パッケージを紹介したいと思います。</p>
 <p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>は,<a href="http://www.mjskay.com/">ミシガン大学情報学部の助教 Matthew Kay</a>さんが開発したRのパッケージです。去年のアドカレで紹介したctmパッケージの開発もイケメンでしたが、これまたイケメンです。ちなみに昨日担当のHojoさんもイケメン(*´Д`)ﾊｧﾊｧです。</p>
@@ -83,13 +82,13 @@
 </blockquote>
 <p>Rstanやbrmsなどでベイズ推定の推定結果を整然データ化して、dplyrの関数群やggplotで扱いやすくするぜ、パイプ演算子でホイホイ繋いで行こうぜ、これがtidybayesの基本的な発想です。</p>
 <p>そもそも整然データとはなんぞや、という方は<a href="https://speakerdeck.com/fnshr/zheng-ran-detatutenani">こちらの記事</a>や<a href="https://www.amazon.co.jp/dp/4774198536/ref=as_li_ss_il?ie=UTF8&amp;linkCode=li3&amp;tag=heavywatal-22&amp;linkId=f0acaf09c5bcbd85ee22c534caede9d1">こちらの本</a>をご参照ください。</p>
-<div class="section level3">
+<div id="対応するパッケージ" class="section level3">
 <h3>対応するパッケージ</h3>
 <p><a href="http://mjskay.github.io/tidybayes/"><code>tidybayes</code></a>は下記の主要なベイズ推定パッケージのオブジェクトに対応しています。<br />
 - rstan, brms, rstanarm, runjags, rjags, jagsUI, coda::mcmc and coda::mcmc.list, MCMCglmm</p>
 <p>ここでは、Stan advent calenderなので、Stanの推定結果を使っていきます。</p>
 </div>
-<div class="section level3">
+<div id="分析に使用するデータとモデル" class="section level3">
 <h3>分析に使用するデータとモデル</h3>
 <ul>
 <li>福島県の各市町村の平成24年の自殺者数と期待死亡数(福島県、<a href="https://www.pref.fukushima.lg.jp/sec/21840a/s-statistics-ctv.html">自殺関連指標を計算するエクセルシート</a>から整理)。なお、今回は例示のために適当な年度からデータをとってきており、平成24年を抽出したことに特別な意味はありません。また福島県のデータを扱っているのも、県で自殺数と期待死亡数をエクセルファイルで公表しているというデータのアクセスしやすさということで選んでいます。</li>
@@ -471,9 +470,9 @@ kable(dat)</code></pre>
 </tbody>
 </table>
 </div>
-<div class="section level3">
+<div id="市町村レベルの標準化死亡比推定モデル" class="section level3">
 <h3>市町村レベルの標準化死亡比推定モデル</h3>
-<div class="section level4">
+<div id="標準化死亡比" class="section level4">
 <h4>標準化死亡比</h4>
 <p>標準化死亡比 (Standardized Mortality Ratio)は、地域間での死亡率を比較する指標としてよく用いられる指標です。</p>
 <p>一般的には、当該地域の実際の死亡数<span class="math inline">\(d\)</span>と、全国の年齢階級別死亡率と当該地域の死亡数かけて算出される期待死亡数<span class="math inline">\(exp_d\)</span>の比をとって100かけた値,</p>
@@ -483,7 +482,7 @@ kable(dat)</code></pre>
 なお、SMRは人口規模の小さい地域では変動が大きいという欠点があり、それを補うために、階層ベイズモデルを用いた縮約統計量の利活用が推奨されています。</p>
 <p>例えば、[関西大学の紺田先生による市町村レベルの標準化死亡比の階層モデルについての文献が勉強になります。<a href="http://www.kansai-u.ac.jp/step/img/public/20140331/0331-1.pdf">こちら</a>や<a href="http://www.myschedule.jp/jpa2014/tex_output/source/jpa2014_poster/90850.pdf">こちら</a></p>
 </div>
-<div id="poisson-gamma" class="section level4">
+<div id="市区町村の標準化死亡比を推定するpoisson-gammaモデル" class="section level4">
 <h4>市区町村の標準化死亡比を推定するpoisson-gammaモデル</h4>
 <p>ここでは、上記の紺田先生のモデルに基づいて標準化死亡比を階層モデルを使って推定します。</p>
 <ul>
@@ -500,7 +499,7 @@ kable(dat)</code></pre>
 <p>ガンマ分布の形状パラメータ(<span class="math inline">\(\alpha\)</span>)と尺度パラメータ(<span class="math inline">\(\beta\)</span>)には、指数分布とガンマ分布を指定します。</p>
 <p><span class="math display">\[\alpha \sim Exp (b_\alpha = 1), \beta \sim Gamma (a = 0.1, b_\beta = 1)\]</span></p>
 </div>
-<div id="stan-" class="section level4">
+<div id="stan-コード" class="section level4">
 <h4>stan コード</h4>
 <p>このpoisson-gammaモデルの推定を行うためのstanコードは、以下のようになります。</p>
 <pre class="stan"><code>data{
@@ -532,7 +531,7 @@ generated quantities {
 </code></pre>
 <p>generated quantitiesブロックでは、gamma分布の性質利用して<span class="math inline">\(\alpha\)</span>と<span class="math inline">\(\beta\)</span>か県レベルの相対リスクの平均と分散を生成量として求めています。</p>
 </div>
-<div class="section level4">
+<div id="推定の実行" class="section level4">
 <h4>推定の実行</h4>
 <pre class="r"><code>library(rstan)
 
@@ -544,9 +543,9 @@ modelGP&lt;-stan_model(&quot;Sdat/HPGmodel.stan&quot;)
 fit&lt;-sampling(modelGP,data=list(d=dat$d,exp_d=dat$exp_d,r=nrow(dat)))</code></pre>
 </div>
 </div>
-<div id="tidybayes" class="section level3">
+<div id="ここからtidybayesの関数を紹介" class="section level3">
 <h3>ここからtidybayesの関数を紹介</h3>
-<div id="spread_draw" class="section level4">
+<div id="spread_draw関数" class="section level4">
 <h4>spread_draw関数</h4>
 <p>tidybayesパッケージでは、ほぼ全ての場合において、ベイズ推定結果が格納されているオブジェクトをこの<code>spread_draws</code>関数に流すことから始まります。<code>stan</code>オブジェクトを<code>spread_draws</code>関数に落とすと下記のような整然データが得られます。</p>
 <pre class="r"><code>library(tidyverse)
@@ -579,7 +578,7 @@ fit %&gt;%  spread_draws(theta[r], alpha,beta) %&gt;% head(20)</code></pre>
 ## 20      1          1     1    20 1.46   5.74  4.71</code></pre>
 <p>chainごと、iterationごと、drawごと、地域(r)ごとのパラメータの推定結果が一つのtibble形式のデータフレームとして整理されます。パラメータが複数ある場合には、<code>gather_draws</code>関数を使って、変数群をlongフォーマットで整理することもできます(ggplotで可視化するときに便利です)。</p>
 </div>
-<div class="section level4">
+<div id="事後分布の要約統計量系関数" class="section level4">
 <h4>事後分布の要約統計量系関数</h4>
 <p><code>tidybayes</code>パッケーでは、<code>spread_draws</code>もしくは<code>gather_draws</code>関数で整然化されたデータを下記の関数に流すことで、事後分布のようやく統計量の整然データを得ることができます。中央値、平均値、最頻値について、それぞれパーセンタイルに基づく方法と最高密度区間に基づく方法を選べます。</p>
 <ul>
@@ -618,7 +617,7 @@ fukushima2&lt;-data.frame(fukushima,theta_bayes,dat)
 fukushima2 %&gt;% ggplot() +
   geom_sf(aes(geometry = geometry,fill=theta),col = &quot;white&quot; )+
   theme_bw()</code></pre>
-<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>dplyrの関数がパイプ演算子でそのまま使えるので、全ての市町村から市のデータ(r=1:13)だけを抽出したい場合に、filter関数で抽出することができます。</p>
 <pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
   filter(r==grep(&quot;市&quot;,dat$ct_name))%&gt;%
@@ -640,7 +639,7 @@ fukushima2 %&gt;% ggplot() +
 ## 12    12 1.25   0.699  1.76    0.95 median hdci     
 ## 13    13 1.03   0.511  1.76    0.95 median hdci</code></pre>
 </div>
-<div class="section level4">
+<div id="事後分布のプロット関数" class="section level4">
 <h4>事後分布のプロット関数</h4>
 <ul>
 <li><p><code>geom_eyeh</code>:事後分布を両側に出します。</p></li>
@@ -649,12 +648,12 @@ fukushima2 %&gt;% ggplot() +
 <p>どちらも事後分布と共に、点推定値と確信区間が表示されます。<code>geom_eyeh</code>,<code>geom_harlfeyeh</code>の引数、point_intervalで点推定値と確信区間にどれを使うか指定できます。また引数<code>.width</code>で確信区間の区間幅も指定可能です。</p>
 <pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
   filter(r==grep(&quot;市&quot;,dat$ct_name)[1:2])%&gt;% ggplot()+geom_eyeh(aes(x=theta,y=as.factor(r)),point_interval=median_hdci,.width=c(.66,0.96))+ylab(&quot;City&quot;)</code></pre>
-<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <pre class="r"><code>fit %&gt;% spread_draws(theta[r]) %&gt;% 
   filter(r==grep(&quot;市&quot;,dat$ct_name)[1:2])%&gt;% ggplot()+geom_halfeyeh(aes(x=theta,y=as.factor(r)),point_interval=median_hdci,.width=c(.66,0.96))+ylab(&quot;City&quot;)</code></pre>
-<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
 </div>
-<div class="section level4">
+<div id="モコモコしたくない人は区間推定のみのプロットも選択可能" class="section level4">
 <h4>モコモコしたくない人は区間推定のみのプロットも選択可能</h4>
 <ul>
 <li><code>stat_pointintervalh</code>:<code>spread_draws</code>や<code>spread_draws</code>でできた整然データをこの関数に流すことで点推定値と確信区間がプロットできます。geom_eye関数のときと同様に、引数<code>point_interval</code>で点推定値と確信区間にどれを使うか指定できます。また引数<code>.width</code>で確信区間の区間幅も指定可能です。</li>
@@ -662,9 +661,9 @@ fukushima2 %&gt;% ggplot() +
 <pre class="r"><code>#市町村(r) 1:5までを表示
 fit %&gt;% spread_draws(theta[r]) %&gt;% 
   filter(r==grep(&quot;市&quot;,dat$ct_name)[1:5])%&gt;% ggplot()+stat_pointintervalh(aes(y = r, x = theta),point_interval=median_hdci,.width=c(.66,0.96))</code></pre>
-<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
-<div class="section level4">
+<div id="パラメータの条件間比較" class="section level4">
 <h4>パラメータの条件間比較</h4>
 <ul>
 <li><code>compare_levels</code>:
@@ -677,9 +676,9 @@ fit %&gt;% spread_draws(theta[r]) %&gt;%
   compare_levels(theta, by = r) %&gt;%
   ggplot(aes(y = r, x = theta)) +
   geom_halfeyeh()</code></pre>
-<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
-<div class="section level4">
+<div id="用途不明なドットプロット" class="section level4">
 <h4>用途不明なドットプロット</h4>
 <p>かわいい以外に使い道が見出せずにいます本家のページに紹介されていたので紹介しておきます。かわいいです。</p>
 <pre class="r"><code>fit %&gt;%
@@ -689,9 +688,9 @@ fit %&gt;% spread_draws(theta[r]) %&gt;%
   geom_dotplot(binwidth = .02) +
   facet_grid(r ~ .) +
   scale_y_continuous(breaks = NULL)</code></pre>
-<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
-<div class="section level4">
+<div id="他のパッケージとの橋渡し" class="section level4">
 <h4>他のパッケージとの橋渡し</h4>
 <p><code>tidybayes</code>パッケージでは、収束診断系の統計指標やプロットのための関数が用意されていません。それらはbayesplotで既にいい感じのんがあるからそっちにスムースにデータを送れるようにするのがいい、ということらしいです。</p>
 <ul>
@@ -704,15 +703,15 @@ library(bayesplot)
 
 fit %&gt;%
   spread_draws(theta[r]) %&gt;% filter(.chain!=3) %&gt;% unspread_draws(theta[r],drop_indices=T) %&gt;% mcmc_acf(pars=c(&quot;theta[1]&quot;,&quot;theta[2]&quot;))</code></pre>
-<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>ちなみにトレースプロットを書きたかったら、<code>spread_draws</code>からそのままggplotで軸を指定すればOKです。</p>
 <pre class="r"><code>fit %&gt;%
   spread_draws(theta[r]) %&gt;% filter(.chain!=3,r==c(1:3)) %&gt;% 
   ggplot(aes(x=.iteration,y=theta,group=as.factor(.chain),color=as.factor(.chain)))+geom_line(alpha=0.5)+facet_wrap(~r,ncol=1)</code></pre>
-<p><img src="2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="../../../../post/2018-12-03-adventcalender-stan2_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
 </div>
-<div class="section level3">
+<div id="使用感" class="section level3">
 <h3>使用感</h3>
 <p>dplyrやggplotを使う人はとても使いやすいと思います。stanに内蔵されている可視化関数よりも自由度高くggplotで操作できる感覚があります。使用前ぶっちゃけあまり必要性を感じていませんでしたが、bayesplotなど他のパッケージとの橋渡し関数も周到に用意されているので、使いやすさUPです。</p>
 <p>今回の記事では関数を全て紹介しきれていません。特に今回は、事後予測分布のプロット関数や、回帰系の予測モデルのプロットに使える関数について触れていません(魅力的な関数が盛りだくさん!!)。それらも便利そうなので、またの機会に試してみて紹介したいと思います。</p>

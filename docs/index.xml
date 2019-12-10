@@ -6,10 +6,19 @@
     <description>Recent content on 竹林由武のブログ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
-    <lastBuildDate>Thu, 22 Aug 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 10 Dec 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>シングルケース実験デザインでプレレジ</title>
+      <link>/2019/12/10/%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E3%82%B1%E3%83%BC%E3%82%B9%E5%AE%9F%E9%A8%93%E3%83%87%E3%82%B6%E3%82%A4%E3%83%B3%E3%81%A7%E3%83%97%E3%83%AC%E3%83%AC%E3%82%B8/</link>
+      <pubDate>Tue, 10 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/12/10/%E3%82%B7%E3%83%B3%E3%82%B0%E3%83%AB%E3%82%B1%E3%83%BC%E3%82%B9%E5%AE%9F%E9%A8%93%E3%83%87%E3%82%B6%E3%82%A4%E3%83%B3%E3%81%A7%E3%83%97%E3%83%AC%E3%83%AC%E3%82%B8/</guid>
+      <description>本記事は、Open and Reproducible Science Advent Calendar 2019 10日目の記事になります。 下記の論文で提唱されているシングルケース実験デザインにおける事前登録のガイドラインに</description>
+    </item>
     
     <item>
       <title>JACBT自主企画シンポジウム発表資料</title>
@@ -35,7 +44,7 @@
       <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/12/19/tidybayes/</guid>
-      <description>## Warning: パッケージ &amp;#39;knitr&amp;#39; はバージョン 3.5.2 の R の下で造られました ## Warning: パッケージ &amp;#39;tibble&amp;#39; はバージョン 3.5.2 の R の下で造られました ## Warning: パッケージ &amp;#39;tidyr&amp;#39; はバージョン 3.5.2 の R の</description>
+      <description>本記事は、Stan adventcalender 2018 19日目の記事になります。 ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介してみ</description>
     </item>
     
     <item>
@@ -44,7 +53,7 @@
       <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/12/03/tidybayes/</guid>
-      <description>## Warning: パッケージ &amp;#39;knitr&amp;#39; はバージョン 3.5.2 の R の下で造られました 今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、S</description>
+      <description>今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、Stan adventcalender 2018 3日目の記事になります。 2日目のHojoさ</description>
     </item>
     
     <item>

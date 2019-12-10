@@ -1,0 +1,237 @@
+---
+title: "シングルケース実験デザインでプレレジ"
+author: TAKEbayeSHI
+date: '2019-12-10'
+categories: [R, sced]
+tags: []
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r error=FALSE,echo=F,message=F,warning=F}
+library(knitr)
+library(kableExtra)
+#library(zousan)
+library(tidyverse)
+#library(tidybayes)
+#library(rstan)
+#library(gridExtra)
+#library(purrr)
+#library(RColorBrewer) 
+
+```
+
+
+---
+
+本記事は、[Open and Reproducible Science Advent Calendar 2019](https://adventar.org/calendars/4523) 10日目の記事になります。
+
+- 下記の論文で提唱されているシングルケース実験デザインにおける事前登録のガイドラインについて紹介します。
+- [Johnson, A. H., & Cook, B. G. (2019). Preregistration in single-case design research. Exceptional Children, 86(1), 95-112.](https://journals.sagepub.com/doi/abs/10.1177/0014402919868529)
+
+---
+
+### シングルケース実験デザイン
+
+***シングルケース 実験デザイン(single case experimental design: SCED)***は介入の効果を検討するための実験研究の手法です。分野によって多様な呼び方がされていますが、SCEDの主要な要素は以下の3点です。
+
+1. 前方視的に高頻度に、一人あるいは小集団を追跡する 
+2. 研究の全てのフェーズ（ベースライン期、介入期など）でアウトカムの測定を反復的に、高頻度に実施する 
+3. 逐次的に介入を導入したり、除去したりする。
+  
+  
+SCEDには複数のデザインが含まれており、代表的なものは以下です。
+
+```{r,echo=F}
+SCED_types<-c("　Reversal/withdrawal = ABAB trial (反転デザイン)",
+"　N of 1 trial",
+"　Multiple baseline design(多層ベースラインデザイン)",
+"　Alternating treatment desing(条件交替デザイン )",
+"　Changing criterion desing(基準変更デザイン)", 
+"　Changing intensity design(強度変更デザイン)")
+
+
+library(knitr)
+kable(SCED_types,col.names = c(" "))
+```
+
+
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/img/sced.png)
+
+効果判定では基本的に、ベースライン期と介入期の得点が一定の手続きを用いて比較されます。SCEDの各デザインの概要についての下記が参考になります。
+
+- [石井 (2015) シングルケースデザインの概要](https://www.jstage.jst.go.jp/article/jjba/29/Suppl/29_KJ00010016875/_pdf/-char/ja)
+- [Krasny-Pacini, A., & Evans, J. (2018). Single-case experimental designs to assess intervention effectiveness in rehabilitation: A practical guide. Annals of physical and rehabilitation medicine, 61(3), 164-179.](https://reader.elsevier.com/reader/sd/pii/S1877065717304542?token=2976EC5ECCD6AC4165C99822FFDF6F1E19CC605E4B06370D9C7E415F69DB267EE898E167BAA6E7BA2F2B39F6FCA34A79)
+
+
+SCEDは色々な分野で活用されておりそれぞれで独特な呼び方がされていますが、下記で表記されるものは全てSCEDに含まれます。
+
+
+```{r,echo=F}
+library(formattable)
+SCED_names<-c("　Single-case experimentl design(SCED)",
+" Single-subject experimental design(SSED)",
+" Single-subject research design (SSRD)",
+" N of 1 trial",
+" Small N designs",
+" Multiple-case design",
+" Single-case design(SCD)",
+" Single-systems designs")
+
+library(knitr)
+df1<-data.frame(SCED_names[1:4],SCED_names[5:8])
+names(df1)<-c(" "," ")
+kable(df1) %>%  kable_styling()%>% 
+    column_spec(1, bold = F, border_right = T,width = "25em") %>%  
+      column_spec(2, bold = F, border_right = T,width = "15em") 
+
+```
+  
+  
+---
+
+### SCEDのエビデンスの質向上に向けた動向
+
+さて、心理学では古くからSCEDが介入とアウトカムの変化の関連を検討するするデザインとして用いられてきましたが、近年多様な領域で再び注目を集めています。その理由としてKrasny-Pacini & Evans (2018)は3つの理由をあげています。
+
+1. オクスフォードのエビデンスに基づく医療センターでN of 1 trialがエビデンスレベル最上位にランクされた（RCTの系統レビューと同等）[^1]
+2. SCEDの研究の質や研究報告の質を評価するためのツールやガイドラインが整備された[^2]
+3. SCEDのデータ解析法が発展した[^3]
+
+
+[^1]:ただしABABデザインなど、反転デザインによるエビデンスに限る。参考, [The history and development of N-of-1 trials](https://journals.sagepub.com/doi/abs/10.1177/0141076817721131?rfr_dat=cr_pub%3Dpubmed&url_ver=Z39.88-2003&rfr_id=ori%3Arid%3Acrossref.org&journalCode=jrsb) や [集団を対象とする疫学研究とN=1研究](https://www.jstage.jst.go.jp/article/sobim/42/1/42_47/_pdf)  
+
+
+ 
+[^2]: SCEDのレポーティングガイドラインには [SCRIBE statement](https://www.sciencedirect.com/science/article/pii/S0895435616300920?via%3Dihub) があり、CONSORT声明に準拠してます [EQUATOR Netoworkにも掲載](https://www.equator-network.org/reporting-guidelines/scribe-statement/) 。また、SCEDの研究のバイアスのリスク評価ツールには [RoBiNT](https://www.ncbi.nlm.nih.gov/pubmed/24050810)スケールがあります。 [日本語解説スライドはこちら](https://www.slideshare.net/FumitoT/fumitot-ver23)
+
+[^3]: 参考 [手前みそ](https://www.slideshare.net/yoshitaket/ss-123775624)  
+
+
+このようにSCED業界では、研究報告のガイドラインやバイアスのリスク評価ツール、およびデータ解析手法が2010年以降から盛んになってきています。これらの動向は、SCED研究のエビデンスを系統的レビューやメタ分析によって統合する方法論と結びついていきます。系統的レビューによってエビデンスの質を吟味する際に、出版バイアスが重要な検討事項となります。つまり、出版が控えられた御蔵入り研究の存在によって知見に歪みがあるのかを検討します。群間比較研究の系統レビューを概観すると一定の出版バイアスが観察されますが、SCED研究においても出版バイアスの存在が指摘されています。行動分析家がいくら誠実だといえども、バイアスからは逃れられないようです。
+
+
+例えば,  シミュレーション研究及び実証研究で、出版された研究の効果量がお蔵入り研究よりも高いことが示されています[^4]。
+
+[^4]: [Sham, E., & Smith, T. (2014). Publication bias in studies of an applied behavior‐analytic intervention: An initial analysis. Journal of Applied Behavior Analysis, 47(3), 663-678.](https://onlinelibrary.wiley.com/doi/abs/10.1002/jaba.146)、[OKUMURA, T. (2016). Publication bias in meta-analysis of single-case research under a selection based on the statistical significance. 上越教育大学研究紀要, 35.](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=2ahUKEwiVn8ySv6nmAhVVPnAKHUkCB3EQFjAAegQIAxAC&url=https%3A%2F%2Fjuen.repo.nii.ac.jp%2F%3Faction%3Drepository_action_common_download%26item_id%3D7120%26item_no%3D1%26attribute_id%3D22%26file_no%3D1&usg=AOvVaw3MR75Idkl0DXNynKSV0Onm)、 [Shadish, W. R., Hedges, L. V., & Pustejovsky, J. E. (2014). Analysis and meta-analysis of single-case designs with a standardized mean difference statistic: A primer and applications. Journal of School Psychology, 52(2), 123-147.](https://www.sciencedirect.com/science/article/pii/S0022440513001076)
+
+
+　そこで、SCEDにおいても、出版バイアスへの防止策として、プレレジを活用しようという動きが出てきています。下記で説明するガイドラインの他に、githubを用いて研究計画や手順データを公開して、変更があればアップデートしてバージョンコントロール機能で変更記録を残すということをSCEDの文脈で推奨している方まで出てきています[^5]。
+
+[^5]: この論文に概略が解説されています [Gilroy, S. P., & Kaplan, B. A. (2019). Furthering Open Science in Behavior Analysis: An Introduction and Tutorial for Using GitHub in Research. Perspectives on Behavior Science, 1-17.](https://link.springer.com/article/10.1007/s40614-019-00202-5)。このようにオープンなサイトを構築してそこでバージョンコントロールの様子もオープンにしましょうという流れはSCEDの外でも確立されてきており、最近Rstudioを通じて研究プロジェクトのウェブサイトを構築できる[***workflowr***](https://github.com/jdblischak/workflowr)パッケージも登場しています。このパッケージについてはこのアドカレの21日に紹介します。
+
+
+---
+
+### SCEDのプレレジガイドライン
+ここで紹介するSCED研究のプレレジガイドラインでは、プレレジする情報がSCED研究の目的に応じて異なっています。このガイドラインでは、SCED研究の目的を、***帰納的/ダイナミック(inductive/dynamic)***なものと***仮説演繹的/固定的(deductive/static))***なものに大別しています。
+
+#### ***帰納的/ダイナミック(inductive/dynamic)***なSCED   
+主要な目的は行動を制御している随伴性を(探索的に)特定することです。応用行動分析の研究など臨床/教育の実践を研究にしたものの多くがこれに該当するそうです。一定のベースライン期の後に独立変数を導入する期間（介入期)でアウトカムに変化がない場合には、社会的な有意性（social significance）を尊重し、アウトカムに望ましい変化が生じるまで介入の内容（独立変数）を変更します。つまり、研究の期間中、独立変数が動的に変化することを認める研究デザイン になります。アウトカムに改善が認められるまで研究は継続され、その結果が報告されるので、（介入に効果がなかったといった）NULLな結論は報告されない傾向にあります（おや、出版バイアスの香りが...）。
+
+#### ***仮説演繹的/固定的(deductive/static))***なSCED   
+主要な目的は事前に特定し固定した介入が特定の条件下で有効がどうかを検証することです。このタイプの研究では、介入が先行研究や理論から事前に特定され、研究期間中に対象者の反応に応じて変更されることがなく固定されます。介入（独立変数）とアウトカムとの関係について明確な仮説（主には介入の導入によってアウトカムに改善が生じる）があり、その仮説を検証することが目的となります。演繹タイプでは、NULLな結果が許容されます。このタイプのSCEDは群間比較研究同様に事前に定められる事項が多いので、プレレジが有効であることが想像しやすいでしょう。
+　
+ただしSCEDは、帰納タイプと演繹タイプのどちらかにきっぱりと区別できるというよりも、両者を軸の両極に据えた連続体のどこかに位置付けられるという整理が適切らしい。例えばその軸の中間に位置付けられるタイプ研究では、介入の有効性をABABデザインで評価する仮説演繹的な目的でスタートした研究が、Bの介入期ででアウトカムに全く変化が示されなく、社会的有意性の観点から介入の変更が行われ帰納タイプへと目的が変更になることもあるかもしれません。
+
+
+### SCEDと出版バイアス、事後的意思決定
+
+帰納タイプに重きを置く研究者の多くは、出版バイアスや事後的な意思決定に関心が低いかもしれません。というのも、帰納タイプの研究者の多くは、出版バイアスは、研究を通じてうまく行動を制御する随伴性が特定できた賜物であるのだと捕らえがちだとか。また事後的な意思決定に関しても同様に、そもそも対象者の反応に応じて独立変数の操作を繰り返して適切な随伴性を特定することが目的なので、関心が薄いかもしれません。
+
+
+
+### 帰納タイプ/動的な研究でプレレジする利点  
+帰納タイプの研究はプレレジと相容れない印象をもつ方も多いかもしれませんが、研究における動的な要素の意思決定の基準や手続きを明確にし、なおかつ基準に変更を行った際にその時点をレコードすることで、研究の透明性、事後的、恣意的な研究報告によるバイアスを防ぐことが可能となりますし、演繹アプローチへと進展した際に、介入方法、データの取得方法、解析方法の再生性の向上に寄与するでしょう。
+
+
+---
+### プレレジ要素
+
+さて、前置きが長くなりましたが、ここからようやくガイドラインの要素をみていきます。
+
+このガイドラインでは、帰納か演繹かに関わらずに明確化する要素と、目的などに応じて明確化する要素に区分されます。 
+
+
+帰納か演繹かに関わらずに明確化する要素  
+ - 研究の背景情報
+ - リサーチクエスチョン
+ - 対象者の特徴を明確に
+  
+目的などに応じて明確化する要素  
+ - ベースラインの特徴  
+ - 独立変数  
+ - 従属変数  
+ - フェーズの変更基準  
+ - 仮説
+
+
+以下それぞれの要素について簡単に紹介します。
+
+#### 研究の背景情報  
+事前登録、倫理委員会の承認番号、研究予算の番号、問い合わせ先研究者、倫理委員会の承認状況、プレレジ登録日など。
+
+#### リサーチクエスチョン
+- 一つ以上の研究疑問を明確化  
+    - 主に帰納的：随伴性Xが行動Yを制御するか?など  
+    - 主に演繹的：特定の介入が特定の条件に対して有効か?など
+
+#### 対象者の特徴
+目標対象者数、対象者の登録開始予定日、包括基準/除外基準など。研究目的に応じて、プレレジ登録後に包括除外基準が変更になることはありえます。変更があった場合には、変更理由をそえてプレレジ内容をアップデート。対象者の選択基準のプレレジは、研究プロジェクトの透明性を大いに高めます。例えば、4名の参加者に特定の介入をし、3名には改善が見られたけど残り1名に改善が見られなかった場合に、残り1名だけにあった特徴を事後的に除外基準として設定し、報告の際には効果のあった3名が介入対象とされ、介入の効果が過大評価される、といった事態をプレレジで防ぐことができます。
+
+
+#### ベースラインの特徴  
+SCEDでは介入の効果は、ベースラインとの比較によって行うので、ベースラインの特徴の詳細をプレレジすることが重要です。  
+    
+演繹タイプ: ベースラインで既に実施されている介入がある場合には、それを事前に明確にします。演繹タイプでは、ベースラインで従属変数と関連するような介入がなされているかどうかが明確であることが多いです。  
+    
+帰納タイプ: 帰納タイプでは、ベースラインを測定しながら、アウトカムと関連する変数の特定を行います。プレレジには、どのようにそれらの変数の特定を行うか、それらを関心の対象とするかどうかの基準を明確にする。ベースラインは群間比較研究で、共変量をどのように制御、特定するかという情報を明確にするのと似てますね。  
+
+#### 独立変数  
+演繹タイプ: 開発された介入の手続きや介入そのものについてプレレジ
+     
+帰納タイプ: 介入の開発のために用いられた手続きをプレレジ
+
+帰納タイプでは、介入がどのように開発されたか、その手続きをプレレジし、一旦開発されたらプレレジをアップデート。例えば、ABABデザインで介入の効果を検討する研究で、個々人への介入の内容は機能分析に基づいて特定されるため事前には定まらないが、その機能分析の手続き自体はFAIR-T Pというプロトコルに従うため、このプロトコルについてプレレジできる。また、初期の介入でアウトカムの変化がなく独立変数の変更した場合には、変更理由とその正当性を明記し、プレレジアップデートします。
+
+また演繹、帰納タイプに関わらず、独立変数の社会的妥当性の評価方法をプレレジすべきです。
+
+
+#### 従属変数
+演繹タイプ: 従属変数の特徴、操作的定義をプレレジ
+  
+帰納タイプ: 従属変数の特定の仕方をプレレジ
+  
+広義に従属変数を定義してプレレジしてから、対象者が登録され情報をえた後で個人に特化した狭義の従属変数を再定義する場合もあり。広義から狭義に変更したタイミングでプレレジをアップデート。例えば、自傷行動を減少する介入で、広義に「自らの身体を傷つける何かしらの自傷行動」を従属変数としてプレレジして起き、参加者が登録され情報を聴取し、Aさんはリストカット、Bさんは壁にヘッドバンキングと個別に従属変数を定義します。
+  
+従属変数のプレレジは、恣意的な、事後的なアウトカム選択によるバイアスを防ぐ役割を果たすことになります。
+  
+客観的な行動評定の評定者間一致率のデータをどのように収集し、どのように求めたかを明確にする。これも事後的に恣意的に良い結果となるように操作することを防止することに役立ちます。
+
+
+#### フェーズの変更基準  
+
+ベースラインが安定したかどうか、安定したことを確かめられたら次のフェーズ。どう安定性を確認するかを明記します。visual analysisには一定のバイアスが発生する懸念があるため、そのバイアスを最小限にする手続きを明確にします。例えば介入者とは独立した評定者が、介入期とベースライン期のいずれのフェーズであるのかをマスクされた状態で行動評定をする。あるいは、ベースラインの長さをランダム化するなど。
+
+帰納タイプでは、参加者のアウトカムが介入の導入によって変化がない場合に介入を変更する場合があるが、その場合に、変化がないというします。
+
+
+
+#### 仮説
+演繹タイプ: 独立変数（介入）と従属変数（アウトカム）との関係についての明確な仮説をプレレジ
+), 分析方法についても明記する。visual analysisを使うなら、効果判定の手続きを明確に。
+    
+帰納タイプ: 有効な随伴性を探索的に明らかにすることが目的なので仮説のプレレジなし
+
+### 終わりに  
+このガイドラインは一部の研究によって今年提唱されたばかりのもので、色々な批判があろうかと思います。これをたたき台として、議論を重ねて、専門家のコンセンサスに基づいてガイドラインが洗練されて行くと良いなと思います。
+
+また研究の質の向上のためにはプレレジだけではなく、総合的な取組が必要になります。例えば、SCEDの研究の質を向上させるための全体的な枠組として、理論ドリブンなSCED研究が研究の各段階（探索段階〜検証段階）を経て循環するモデルも提唱されています[^3]。  
+
+[^3]: [Kilgus, S. P., Riley-Tillman, T. C., & Kratochwill, T. R. (2016). Establishing interventions via a theory-driven single case design research cycle. School Psychology Review, 45(4), 477-498.](https://www.naspjournals.org/doi/abs/10.17105/SPR45-4.477-498) 
+
+オープンなサイエンスの波はSCED研究にも確実に来ているようなので波乗りジョニーで、わっしょい（雑）。
+
+
+#### 脚注
+
