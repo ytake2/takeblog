@@ -56,8 +56,6 @@ kable(SCED_types,col.names = c(" "))
 ```
 
 
-![](https://github.com/ytake2/takeblog/blob/master/docs/post/img/sced.png)
-
 効果判定では基本的に、ベースライン期と介入期の得点が一定の手続きを用いて比較されます。SCEDの各デザインの概要についての下記が参考になります。
 
 - [石井 (2015) シングルケースデザインの概要](https://www.jstage.jst.go.jp/article/jjba/29/Suppl/29_KJ00010016875/_pdf/-char/ja)
