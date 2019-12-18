@@ -6,19 +6,10 @@
     <description>Recent content in R on 竹林由武のブログ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
-    <lastBuildDate>Wed, 18 Dec 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 10 Dec 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>Stanでベイズ臨床試験デザイン: Phase I試験の連続再評価法</title>
-      <link>/2019/12/18/crm-trialr-stan/</link>
-      <pubDate>Wed, 18 Dec 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/2019/12/18/crm-trialr-stan/</guid>
-      <description>この記事はStan Advent Calendar 2019 18日目の内容になります。 ベイズ流臨床試験デザイン みなさん今年もStanアドカレ楽しんでいますか。アドカレで毎日St</description>
-    </item>
     
     <item>
       <title>シングルケース実験デザインでプレレジ</title>

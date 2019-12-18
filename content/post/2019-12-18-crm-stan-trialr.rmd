@@ -1,16 +1,26 @@
 ---
-title: "Stanでベイズ臨床試験デザイン: Phase I試験の連続再評価法"
-author: null
+title: StanでPhaseI用量探索試験
+author: ~
 date: '2019-12-18'
-slug: crm-trialr-stan
-categories: [stan, clinical trial, r, bayes]
+slug: crm-stan-trialr
+categories: []
 tags: []
-editor_options: 
-  chunk_output_type: inline
 ---
+
+```{r error=FALSE,echo=F,message=F}
+library(rstan)
+library(knitr)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+opts_chunk$set(message=FALSE,warning=F,error=F)
+```
 
 
 この記事は[Stan Advent Calendar 2019](https://qiita.com/advent-calendar/2019/stan) 18日目の内容になります。  
+
+
+----
 
 ### ベイズ流臨床試験デザイン
 
@@ -21,10 +31,13 @@ editor_options:
 近年、臨床試験の効率化等の観点から、試験の結果を逐次的にモニタリングし、経過に応じて柔軟な意思決定を行いやすいベイズ流の臨床試験デザインの活用が期待されています[^1]。
 
 ベイズ流の臨床試験デザインには、第2相試験または3相で適用されるものが多く開発されており、予測確率に基づく有効性の逐次モニタリング、サンプルサイズ再設定、適応的ランダム化などがあります。それらに関しては、他の書籍や論文などでも紹介されています[^2]。本日は個人的には日本語での紹介がやや少ないかな?と思う、第1相試験で薬剤処方用量を決める際に用いられている連続再評価法(Continual Reassessment Method: CRM)について取り上げます。
+  
+[^1]: 例えば、 [FDAの適応的デザインのガイドライン](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/adaptive-design-clinical-trials-drugs-and-biologics-guidance-industry)
 
-[^1]:例えば、[FDAの適応的デザインのガイドライン](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/adaptive-design-clinical-trials-drugs-and-biologics-guidance-industry)
+[^2]: 例えば、 [手良向 (2017)](https://www.kinpodo-pub.co.jp/book/1723-8/)、 [手良向・大門(訳)(2014)](https://www.amazon.co.jp/%E8%87%A8%E5%BA%8A%E8%A9%A6%E9%A8%93%E3%83%87%E3%82%B6%E3%82%A4%E3%83%B3%E2%80%95%E3%83%99%E3%82%A4%E3%82%BA%E6%B5%81%E3%83%BB%E9%A0%BB%E5%BA%A6%E6%B5%81%E3%81%AE%E9%81%A9%E5%BF%9C%E7%9A%84%E6%96%B9%E6%B3%95-%E5%B0%B9%E5%9C%8B%E8%81%96/dp/4902007649)、 [竹林由武 (2018)](https://ytake2.github.io/Rsite/_site/img/takebayashi2018bayesianClinicalTrial.pdf)などがあります。
 
-[^2]: 例えば,[手良向 (2017)](https://www.kinpodo-pub.co.jp/book/1723-8/)、[手良向・大門(訳)(2014)](https://www.amazon.co.jp/%E8%87%A8%E5%BA%8A%E8%A9%A6%E9%A8%93%E3%83%87%E3%82%B6%E3%82%A4%E3%83%B3%E2%80%95%E3%83%99%E3%82%A4%E3%82%BA%E6%B5%81%E3%83%BB%E9%A0%BB%E5%BA%A6%E6%B5%81%E3%81%AE%E9%81%A9%E5%BF%9C%E7%9A%84%E6%96%B9%E6%B3%95-%E5%B0%B9%E5%9C%8B%E8%81%96/dp/4902007649)[竹林由武 (2018)](https://ytake2.github.io/Rsite/_site/img/takebayashi2018bayesianClinicalTrial.pdf)などがあります。
+
+----
 
 
 ### 第1相試験
@@ -33,46 +46,35 @@ CRMは臨床試験の最初の相、第1相試験で適用されます。ここ�
 
 CRMは主には、薬剤の処方用量の探索に用いられていますが、rTMSやtDCSあるいはニューロフィードバックのような、一定の刺激呈示を1回の処方とするような精神疾患の治療的介入の最適回数の探索にも使えるようです。アプリを用いた心理学的な介入（プロンプトの呈示)なども最適回数を探索するのに使えそうです。
 
-## 推定するモデル
+----
 
-いくつかの亜型が存在しますが、基本的には、用量と毒性発生確率の用量反応曲線(関数)を仮定し、その曲線を規程するパラメータを推定します。
+### 推定するモデル
 
-もっとも基本的なモデルは、
+いくつかの亜型が存在しますが、基本的には、用量と毒性発生確率の用量反応曲線(関数)を仮定し、その曲線を規程するパラメータを推定します。  
+  
+$x_i$を標準化処方量とし、特定の処方量における用量制限毒性(dose limiting toxicity:DLT)の確率を、$F(x_i,\theta)$といった平滑化関数を用いて推定します。ここで、$\theta$はパラメータベクトルです。関数$F$の設定を少しずつ変えた亜型が存在します。  
+  
+$Y_i$が$\{0,1\}$の2値をとるランダム変数で、患者$Patient_i$におけるDLTの有無を表しているとします。ある処方量$x_i$を投与された患者における毒性の推定確率が$F(x_i、\theta)$であるから、患者$patient_i$の尤度は、  
 
-$x_i$を標準化処方量とし、特定の処方量における用量制限毒性(dose limiting toxicity:DLT)の確率を、$F(x_i,\theta)$といった平滑化関数を用いて推定します。ここで、$\theta$はパラメータベクトルです。関数$F$の設定を少しずつ変えた亜型が存在します。
-
-$Y_i$が$\{0,1\}$の2値をとるランダム変数で、$患者_i$におけるDLTの有無を表しているとします。ある処方量$x_i$を投与された患者における毒性の推定確率が$F（x_i、\theta）$であるから、$患者_i$の尤度は、  
-
-\begin{equation}
-F(x_i,\theta)^{Y_i}(1-F(x_i,\theta))^{1-Y_i}\tag{1}
-\end{equation} 
+$$F(x_i,\theta)^{Y_i}(1-F(x_i,\theta))^{1-Y_i}\tag{1}$$
 
 となり、  複数の患者$J$を評価した後の尤度は、
 
-\begin{equation}
-L_j(\theta)=\prod_{i=1}^{J} \left \{ F(x_i,\theta)\right \}^{Y_i}\left \{1-F(x_i,\theta)\right \}^{1-Y_i}\tag{2}
-\end{equation} 
+
+$$L_j(\theta)=\prod_{i=1}^{J} \left \{ F(x_i,\theta)\right \}^{Y_i}\left \{1-F(x_i,\theta)\right \}^{1-Y_i}\tag{2}$$
 
 となります。
 
 trialパッケージのstan_crm関数で指定可能なCRMの亜型は以下の4つです。
 
 
-\begin{equation}
-F(x_i,\beta)=x_i^{exp \beta}\tag{3}
-\end{equation} 
+$$F(x_i,\beta)=x_i^{exp \beta}\tag{3}$$
 
-\begin{equation}
-F(x_i,\beta)=1/(1+exp(-a_0-exp(\beta)x_i))\tag{4}
-\end{equation} 
+$$F(x_i,\beta)=1/(1+exp(-a_0-exp(\beta)x_i))\tag{4}$$
 
-\begin{equation}
-F(x_i,\beta)=1/(1+exp(-a_0-\beta x_i))\tag{5}
-\end{equation} 
+$$F(x_i,\beta)=1/(1+exp(-a_0-\beta x_i))\tag{5}$$
 
-\begin{equation}
-F(x_i,\beta)=1/(1+exp(-a-exp(\beta)x_i))\tag{6}
-\end{equation} 
+$$F(x_i,\beta)=1/(1+exp(-a-exp(\beta)x_i))\tag{6}$$
 
 
 - 式 (3)では、$\beta$に正規分布を仮定  
@@ -83,9 +85,10 @@ F(x_i,\beta)=1/(1+exp(-a-exp(\beta)x_i))\tag{6}
 です。
 
 
-モデルのイメージをつかむために、関数を可視化してみます。ここで式4の1パラメータのロジスティックモデルで書いてみると、横軸に処方量、縦軸に毒性発生確率をとって用量反応曲線を描くことができます。
+モデルのイメージをつかむために、関数を可視化してみます。ここで式4の1パラメータのロジスティックモデルで書いてみると、横軸に処方量、縦軸に毒性発生確率をとって用量反応曲線を描くことができます。  
 
-```{r, echo=T}
+
+```{r}
 crm.f<-function(beta){
   d<-seq(0,5,length=1000)
   p=NULL
@@ -104,13 +107,16 @@ list(10,2,1)%>% map(crm.f)-> p
 grid.arrange(grobs = p, ncol =1)
 
 ```
-
+  
+  
+    
 
 $a_0$は固定母数なので、3つのプロットは$\beta$の値が異なるのみです。
 $\beta$は用量反応曲線の傾きを反映するパラメータになっています。今回の場合は上、中、下段の順で$\beta$の値(傾き)が小さく、上段の図では用量が低い段階で毒性の発現確率が高く、中段では中程度の用量で発現確率が高くなり、下段では高用量で毒性の発現確率が高くなる、といったかたちで、用量反応関係を記述することが可能となります。この用量反応曲線の型を規定する$\beta$をベイズ推定で求めようというのがCRMの基本的な発想となります。
 
 また、CRMではこの割合を超えて毒性が発生して欲しくないという、標的となる毒性発現確率を定めます。上の図で標的となる毒性発現確率を0.25と設定した場合に中段の図では処方量がおよそ1のあたりで毒性発現確率が0.25となっており、MTDは1付近の(1より小さい)値となります。
 
+----
 
 ### trialr パッケージ
 
@@ -155,23 +161,21 @@ outcomes <- '2NN 3NN 4TT'
 各モデルの定数($a_0$)や事前分布のパラメータは、[Wheeler (2019)](https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-018-0638-z) が参考になります。
 
 
-#### 式4: 1パラメータロジスティックモデル, 正規分布
+- 式4: 1パラメータロジスティックモデル, 正規分布  
 
-```{r, message=F,warning=F,results="hide"}
+```{r,results="hide"}
+
 model1<-stan_crm(outcomes, 
          skeleton = skeleton, 
          target = target,
          model = 'logistic', 
          a0=3, beta_mean=0, beta_sd = sqrt(1.34))
-
-
-model1$dat
-
 ```
 
-#### 式5: 1パラメータロジスティックモデル, ガンマ分布
+- 式5: 1パラメータロジスティックモデル, ガンマ分布  
 
-```{r, message=F,warning=F,results="hide"}
+```{r,results="hide"}
+
 model2<-stan_crm(outcomes, 
          skeleton = skeleton, 
          target = target,
@@ -179,10 +183,11 @@ model2<-stan_crm(outcomes,
          a0=3, beta_shape=1, beta_inverse_scale = 1)
 ```
 
-#### 式6: 2パラメータロジスティックモデル, 正規分布
+- 式6: 2パラメータロジスティックモデル, 正規分布  
 
 
-```{r, message=F,warning=F,results="hide"}
+```{r,results="hide"}
+
 model3<-stan_crm(outcomes, 
          skeleton = skeleton, 
          target = target,
@@ -191,7 +196,7 @@ model3<-stan_crm(outcomes,
          beta_mean=0,beta_sd=1)
 ```
 
-推定結果のサマリーが下記で示されます。各処方用量における、毒性発現確率(prob_tox)を、それぞれのモデルでプロットしてみます。
+推定結果のサマリーが下記で示されます。各処方用量における、毒性発現確率(prob_tox)を、それぞれのモデルでプロットしてみます。  
 
 ```{r}
 three_model<-data.frame(prob_tox=c(model1$prob_tox,model2$prob_tox,model3$prob_tox),
@@ -205,13 +210,13 @@ ggplot(three_model,
 ```
 
 
-今回は標的となる毒性発現確率が0.25で、model1と2はMTDが2と3の間、model3では3を少し越えた値となりました。なので、model1と2ではMTDは2、model3ではMTDは3という判断となります。
+今回は標的となる毒性発現確率が0.25で、model1と2はMTDが2と3の間、model3では3を少し越えた値となりました。なので、model1と2ではMTDは2、model3ではMTDは3という判断となります。  
 
 
-stan_crmを実行したオブジェクトは、***stan***や***brms***と同様に***tidybayes***パッケージの関数が適用可能です。これはとても気持ちいいことです。***tidybayes***の使いかたは[こちら](https://ytake2.github.io/takeblog/2018/12/03/tidybayes/)。サマリーの推定値だけではベイズ感が乏しいので、事後分布をプロットしてみましょう。
+stan_crmを実行したオブジェクトは、***stan***や***brms***と同様に***tidybayes***パッケージの関数が適用可能です。これはとても気持ちいいことです。***tidybayes***の使いかたは[こちら](https://ytake2.github.io/takeblog/2018/12/03/tidybayes/)。サマリーの推定値だけではベイズ感が乏しいので、事後分布をプロットしてみましょう。  
 
 
-```{r,echo=T, message=F,warning=F}
+```{r}
 library(tidyverse)
 library(tidybayes)
 
@@ -226,26 +231,29 @@ stat_interval(.width = c(.5, .8, .95)) +
 ```
 
 
+----
 
-#### 中で走らせてるstan コード
+### 中で走らせてるstan コード
 
-trialrパッケージのgithubのサイトに、[各モデルのstan codeがある](https://github.com/brockk/trialr/tree/master/src/stan_files)ので、それをみてみましょう。
-
-
-
-下記は[CrmOneParamLogisticNormalPrior.stan]というファイルに書かれた、正規分布をパラメータの事前分布にした、1パラメータのロジスティックモデルのstanコードです。
+trialrパッケージのgithubのサイトに、[各モデルのstan codeがある](https://github.com/brockk/trialr/tree/master/src/stan_files)ので、それをみてみましょう。  
 
 
-stanのfunctionsで関数$F(x_i, \beta) = exp\{a_0 + exp(beta) x_i\} / (1 +exp\{a_0 + exp(beta) x_i\})$を定義しています。  
 
-$x_1$: skeleton (事前の各用量の毒性発現確率)  
-$a_0$: 切片, 定数  
-$\beta$: 傾き, 推定するパラメータ    
-$\beta \sim N(\beta_{mean}, \beta_{sd})$  
+下記は[CrmOneParamLogisticNormalPrior.stan]というファイルに書かれた、正規分布をパラメータの事前分布にした、1パラメータのロジスティックモデルのstanコードです。  
 
-betaにexpをかましているのは、単調増加の用量反応曲線が正値をとるようにするためとのことです。またこの関数ではweightsで重みも加えられるようになっています。
 
-```{stan, output.var="LOGIT1PLNORM.crm"}
+stanのfunctionsで関数$F(x_i, \beta) = exp\{a_0 + exp(beta) x_i\} / (1 +exp\{a_0 + exp(beta) x_i\})$を定義しています。    
+
+$x_1$ : skeleton (事前の各用量の毒性発現確率)    
+$a_0$ : 切片, 定数    
+$\beta$ : 傾き, 推定するパラメータ      
+$\beta \sim N(\beta_{mean}, \beta_{sd})$    
+
+betaにexpをかましているのは、単調増加の用量反応曲線が正値をとるようにするためとのことです。またこの関数ではweightsで重みも加えられるようになっています。  
+
+```{r}
+LOGIT1PLNORM.crm<-
+'  
 functions {
   real log_joint_pdf(int num_patients, int[] tox, int[] doses, real[] weights,
                      real[] codified_doses, real a0, real beta) {
@@ -323,28 +331,37 @@ generated quantities { // 対数尤度の計算
 
   }
 }
+'
+```
 
-
+```{r,eval=F,echo=T}
+library(rstan)
+LOGIT1PLNORM.crm<-stan_model(model_code=LOGIT1PLNORM.crm)
 ```
 
 
-上のstanコードを実行してみるために、dataブロックに合わせてデータを加工のします。ここではちょっとずるして、model1のstan_crmオブジェクトに格納されているデータを援用します。中身はstanで走らせるために、list型になっています。
+上のstanコードを実行してみるために、dataブロックに合わせてデータを加工のします。ここではちょっとずるして、model1のstan_crmオブジェクトに格納されているデータを援用します。中身はstanで走らせるために、list型になっています。  
 
 ```{r}
 model1$dat
 ```
 
 
-あたりまえですが、先ほどstan_crm関数で走らせたのと、同じ結果が出ます。
+あたりまえですが、先ほどstan_crm関数で走らせたのと、同じ結果が出ます。  
 
 
-```{r,warning=F,message=F,cache=T,results="hide"}
+```{r,echo=F}
+load("stan.model.rds")
+```
 
+
+```{r,cache=T,results="hide"}
 library(rstan)
 fit<-rstan::sampling(LOGIT1PLNORM.crm,data=model1$dat)
 
 ```
-
+  
+  
 ```{r}
 fit
 
@@ -357,14 +374,15 @@ fit %>%
  theme_gray (base_family = "HiraKakuPro-W3")
 ```
 
-githubのサイトには、trialパッケージに含まれるCRMの各種モデルのstanコードが収容されているので、関心のあるかたはそれぞれのコードを眺めてみると面白いと思いますし、結果的に、trialパッケージでいいよねってなりますのでおすすめです。独自の生成量を追加したい時などは、元のstanコードが役にたちます。
+githubのサイトには、trialパッケージに含まれるCRMの各種モデルのstanコードが収容されているので、関心のあるかたはそれぞれのコードを眺めてみると面白いと思いますし、結果的に、trialパッケージでいいよねってなりますのでおすすめです。独自の生成量を追加したい時などは、元のstanコードが役にたちます。  
 
-今日はCRMも基本的なモデル(1母数、2母数ロジスティクモデル)だけをみましたが、trialrではさらに発展的なモデルも扱うことができます。
+今日はCRMも基本的なモデル(1母数、2母数ロジスティクモデル)だけをみましたが、trialrではさらに発展的なモデルも扱うことができます。  
 
-Enjoy!!
+Enjoy!!  
 
-### Session info
+### Session info  
+  
+  
 ```{r}
 sessionInfo()
 ```
-
