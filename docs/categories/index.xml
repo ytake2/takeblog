@@ -6,17 +6,44 @@
     <description>Recent content in Categories on 竹林由武のブログ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
-    <lastBuildDate>Tue, 10 Dec 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Dec 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>bayes</title>
+      <link>/categories/bayes/</link>
+      <pubDate>Wed, 18 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/categories/bayes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>clinical trial</title>
+      <link>/categories/clinical-trial/</link>
+      <pubDate>Wed, 18 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/categories/clinical-trial/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>R</title>
       <link>/categories/r/</link>
-      <pubDate>Tue, 10 Dec 2019 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 18 Dec 2019 00:00:00 +0000</pubDate>
       
       <guid>/categories/r/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>stan</title>
+      <link>/categories/stan/</link>
+      <pubDate>Wed, 18 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/categories/stan/</guid>
       <description></description>
     </item>
     
@@ -30,29 +57,11 @@
     </item>
     
     <item>
-      <title>bayes</title>
-      <link>/categories/bayes/</link>
-      <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/categories/bayes/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>change-point</title>
       <link>/categories/change-point/</link>
       <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/categories/change-point/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>stan</title>
-      <link>/categories/stan/</link>
-      <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/categories/stan/</guid>
       <description></description>
     </item>
     

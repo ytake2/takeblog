@@ -4,5 +4,5 @@ install_hugo(force=T)
 
 build_site()
 serve_site()
-blogdown::new_post("research_assistant")
-blogdown::new_post("JACBT_symposium_information")
+#blogdown::new_post("research_assistant")
+#blogdown::new_post("JACBT_symposium_information")
