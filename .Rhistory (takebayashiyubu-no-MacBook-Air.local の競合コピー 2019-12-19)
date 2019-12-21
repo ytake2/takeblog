@@ -1,0 +1,512 @@
+"Multiple-case design",
+"Single-case design(SCD)",
+"Single-systems designs")
+library(knitr)
+df1<-data.frame(SCED_names[1:4],SCED_names[5:8])
+names(df1)<-c(" "," ")
+kable(df1) %>%  kable_styling()%>%
+column_spec(1, bold = F, border_right = T,width = "10em") %>%
+column_spec(2, bold = F, border_right = T,width = "10em")
+library(formattable)
+SCED_names<-c("Single-case experimentl design(SCED)",
+"Single-subject experimental design(SSED)",
+"Single-subject research design (SSRD)",
+"N of 1 trial",
+"Small N designs",
+"Multiple-case design",
+"Single-case design(SCD)",
+"Single-systems designs")
+library(knitr)
+df1<-data.frame(SCED_names[1:4],SCED_names[5:8])
+names(df1)<-c(" "," ")
+kable(df1) %>%  kable_styling()%>%
+column_spec(1, bold = F, border_right = T,width = "5em") %>%
+column_spec(2, bold = F, border_right = T,width = "5em")
+serve_site()
+serve_site()
+library(formattable)
+SCED_names<-c("Single-case experimentl design(SCED)",
+"Single-subject experimental design(SSED)",
+"Single-subject research design (SSRD)",
+"N of 1 trial",
+"Small N designs",
+"Multiple-case design",
+"Single-case design(SCD)",
+"Single-systems designs")
+library(knitr)
+df1<-data.frame(SCED_names[1:4],SCED_names[5:8])
+names(df1)<-c(" "," ")
+kable(df1) %>%  kable_styling()%>%
+column_spec(1, bold = F, border_right = T,width = "10em") %>%
+column_spec(2, bold = F, border_right = T,width = "10em")
+serve_site()
+serve_site()
+library(formattable)
+serve_site()
+SCED_names<-c("Single-case experimentl design(SCED)",
+"Single-subject experimental design(SSED)",
+"Single-subject research design (SSRD)",
+"N of 1 trial",
+"Small N designs",
+"Multiple-case design",
+"Single-case design(SCD)",
+"Single-systems designs")
+library(knitr)
+df1<-data.frame(SCED_names[1:4],SCED_names[5:8])
+names(df1)<-c(" "," ")
+kable(df1) %>%  kable_styling()%>%
+column_spec(1, bold = F, border_right = T,width = "25em") %>%
+column_spec(2, bold = F, border_right = T,width = "15em")
+build_site()
+serve_site()
+serve_site()
+build_site()
+serve_site()
+build_site()
+serve_site()
+build_site()
+serve_site()
+serve_site()
+build_site()
+build_site()
+serve_site()
+library(blogdown)
+build_site()
+serve_site()
+build_site()
+serve_site()
+blogdown::new_post("CRM_trialr_stan")
+build_site()
+serve_site()
+library(blogdown)
+build_site()
+serve_site()
+serve_site()
+serve_site()
+build_site()
+serve_site()
+build_site()
+serve_site()
+build_site()
+serve_site()
+serve_site()
+serve_site()
+build_site()
+serve_site()
+serve_site()
+serve_site()
+serve_site()
+LOGIT1PLNORM.crm<-
+'
+functions {
+real log_joint_pdf(int num_patients, int[] tox, int[] doses, real[] weights,
+real[] codified_doses, real a0, real beta) {
+real p;
+p = 0;
+for(j in 1:num_patients) {
+real prob_tox;
+real p_j;
+prob_tox = inv_logit(a0 + exp(beta) * codified_doses[doses[j]]);
+p_j = (weights[j] * prob_tox)^tox[j] *
+(1 - weights[j] * prob_tox)^(1 - tox[j]);
+p += log(p_j);
+}
+return p;
+}
+}
+data {
+// betaの事前分布(正規分布)の平均と標準偏差
+real beta_mean;
+real<lower=0> beta_sd;
+// 用量の種類数
+int<lower=1> num_doses;
+// skeleton (各処方用量における毒性発現確率の事前の見積もり).  skeletonは単調増加で指定.
+real<lower=0, upper = 1> skeleton[num_doses];
+// 切片定数: 3が推奨
+real a0;
+// 対象者数
+int<lower=0> num_patients;
+// 対象者ごとの毒性の有無(2値)
+int<lower=0, upper=1> tox[num_patients];
+// 用量水準
+int<lower=1, upper=num_doses> doses[num_patients];
+// 重み0から1 TITE-CRMで使用
+real weights[num_patients];
+}
+transformed data {
+//   Codified dosesに、skeletonの値を用量反応関係の値となるよう変換し格納
+real codified_doses[num_doses];
+for(i in 1:num_doses) {
+codified_doses[i] = (logit(skeleton[i]) - a0) / exp(beta_mean);
+}
+}
+parameters {
+// 推定するパラメータはbetaだけ
+real beta;
+}
+transformed parameters {
+// 推定したbetaを用いて、各処方用量における毒性発現確率prob_toxの事後分布を推定
+real<lower=0, upper=1> prob_tox[num_doses];
+for(i in 1:num_doses) {
+prob_tox[i] = inv_logit(a0 + exp(beta) * codified_doses[i]);
+}
+}
+model { // betaはN(beta_mean, beta_sd)の正規分布
+target += normal_lpdf(beta | beta_mean, beta_sd);
+// functionブロックで定義したlog_joint_pdfを使用
+target += log_joint_pdf(num_patients, tox, doses, weights, codified_doses, a0, beta);
+}
+generated quantities { // 対数尤度の計算
+vector[num_patients] log_lik;
+for (j in 1:num_patients) {
+real p_j;
+p_j = inv_logit(a0 + exp(beta) * codified_doses[doses[j]]);
+log_lik[j] = log((weights[j] * p_j)^tox[j] *
+(1 - weights[j] * p_j)^(1 - tox[j]));
+}
+}
+'
+library(rstan)
+LOGIT1PLNORM.crm<-stan__model(LOGIT1PLNORM.crm)
+library(rstan)
+LOGIT1PLNORM.crm<-stan_model(LOGIT1PLNORM.crm)
+LOGIT1PLNORM.crm<-stan_model(model=LOGIT1PLNORM.crm)
+?stan_model
+LOGIT1PLNORM.crm<-stan_model(model_code=LOGIT1PLNORM.crm)
+save(LOGIT1PLNORM.crm,file="stan.model.Rdata")
+load("stan.model.Rdata")
+fit<-rstan::sampling(LOGIT1PLNORM.crm,data=model1$dat)
+model1$dat
+model1<-stan_crm(outcomes,
+skeleton = skeleton,
+target = target,
+model = 'logistic',
+a0=3, beta_mean=0, beta_sd = sqrt(1.34))
+library(trialr)
+target<-0.25
+skeleton<-c(0.05,0.15,0.25,0.4,0.6)
+data<-data.frame(Patient=1:6,
+Cohort =rep(1:3,each=2),
+Dose_level=rep(2:4,each=2),
+DLT = c(0,0,0,0,1,1))
+data
+outcomes <- '2NN 3NN 4TT'
+model1<-stan_crm(outcomes,
+skeleton = skeleton,
+target = target,
+model = 'logistic',
+a0=3, beta_mean=0, beta_sd = sqrt(1.34))
+model2<-stan_crm(outcomes,
+skeleton = skeleton,
+target = target,
+model = 'logistic_gamma',
+a0=3, beta_shape=1, beta_inverse_scale = 1)
+model3<-stan_crm(outcomes,
+skeleton = skeleton,
+target = target,
+model = 'logistic2',
+alpha_mean =0, alpha_sd=1,
+beta_mean=0,beta_sd=1)
+three_model<-data.frame(prob_tox=c(model1$prob_tox,model2$prob_tox,model3$prob_tox),
+model=rep(1:3,each=5),
+dose=rep(1:5,3))
+ggplot(three_model,
+aes(x=dose,y=prob_tox,color=as.factor(model)))+
+geom_line()
+library(tidyverse)
+library(tidybayes)
+model1 %>%
+spread_draws(prob_tox[Dose]) %>%
+ggplot(aes(x = Dose, y = prob_tox)) +
+stat_interval(.width = c(.5, .8, .95)) +
+scale_color_brewer() +
+labs(y = 'Prob(DLT)', title = '各用量の毒性発現確率の事後分布')+
+theme_gray (base_family = "HiraKakuPro-W3")
+LOGIT1PLNORM.crm<-
+'
+functions {
+real log_joint_pdf(int num_patients, int[] tox, int[] doses, real[] weights,
+real[] codified_doses, real a0, real beta) {
+real p;
+p = 0;
+for(j in 1:num_patients) {
+real prob_tox;
+real p_j;
+prob_tox = inv_logit(a0 + exp(beta) * codified_doses[doses[j]]);
+p_j = (weights[j] * prob_tox)^tox[j] *
+(1 - weights[j] * prob_tox)^(1 - tox[j]);
+p += log(p_j);
+}
+return p;
+}
+}
+data {
+// betaの事前分布(正規分布)の平均と標準偏差
+real beta_mean;
+real<lower=0> beta_sd;
+// 用量の種類数
+int<lower=1> num_doses;
+// skeleton (各処方用量における毒性発現確率の事前の見積もり).  skeletonは単調増加で指定.
+real<lower=0, upper = 1> skeleton[num_doses];
+// 切片定数: 3が推奨
+real a0;
+// 対象者数
+int<lower=0> num_patients;
+// 対象者ごとの毒性の有無(2値)
+int<lower=0, upper=1> tox[num_patients];
+// 用量水準
+int<lower=1, upper=num_doses> doses[num_patients];
+// 重み0から1 TITE-CRMで使用
+real weights[num_patients];
+}
+transformed data {
+//   Codified dosesに、skeletonの値を用量反応関係の値となるよう変換し格納
+real codified_doses[num_doses];
+for(i in 1:num_doses) {
+codified_doses[i] = (logit(skeleton[i]) - a0) / exp(beta_mean);
+}
+}
+parameters {
+// 推定するパラメータはbetaだけ
+real beta;
+}
+transformed parameters {
+// 推定したbetaを用いて、各処方用量における毒性発現確率prob_toxの事後分布を推定
+real<lower=0, upper=1> prob_tox[num_doses];
+for(i in 1:num_doses) {
+prob_tox[i] = inv_logit(a0 + exp(beta) * codified_doses[i]);
+}
+}
+model { // betaはN(beta_mean, beta_sd)の正規分布
+target += normal_lpdf(beta | beta_mean, beta_sd);
+// functionブロックで定義したlog_joint_pdfを使用
+target += log_joint_pdf(num_patients, tox, doses, weights, codified_doses, a0, beta);
+}
+generated quantities { // 対数尤度の計算
+vector[num_patients] log_lik;
+for (j in 1:num_patients) {
+real p_j;
+p_j = inv_logit(a0 + exp(beta) * codified_doses[doses[j]]);
+log_lik[j] = log((weights[j] * p_j)^tox[j] *
+(1 - weights[j] * p_j)^(1 - tox[j]));
+}
+}
+'
+library(rstan)
+LOGIT1PLNORM.crm<-stan_model(model_code=LOGIT1PLNORM.crm)
+save(LOGIT1PLNORM.crm,file="stan.model.Rdata")
+model1$dat
+load("stan.model.Rdata")
+library(rstan)
+fit<-rstan::sampling(LOGIT1PLNORM.crm,data=model1$dat)
+crm.f<-function(beta){
+d<-seq(0,5,length=1000)
+p=NULL
+for(i in d){
+p<-c(p,exp(-3+beta*i)/(1+exp(-3+beta*i)))
+}
+df<-data.frame(probability=p,std.dose=d)
+require(ggplot2)
+qplot(y=probability,x=std.dose,data=df)+geom_line()+theme_bw()+ylim(0,1)
+}
+library(purrr)
+library(gridExtra)
+list(10,2,1)%>% map(crm.f)-> p
+grid.arrange(grobs = p, ncol =1)
+build_site()
+serve_site()
+blogdown::new_post("CRM_trialr_stan")
+serve_site()
+serve_site()
+blogdown::new_post("CRM stan trialr",
+ext = getOption("blogdown.ext", ".rmd"))
+install.packages("trialr")
+library(rstan)
+library(knitr)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+opts_chunk$set(message=FALSE,warning=F,error=F)
+crm.f<-function(beta){
+d<-seq(0,5,length=1000)
+p=NULL
+for(i in d){
+p<-c(p,exp(-3+beta*i)/(1+exp(-3+beta*i)))
+}
+df<-data.frame(probability=p,std.dose=d)
+require(ggplot2)
+qplot(y=probability,x=std.dose,data=df)+geom_line()+theme_bw()+ylim(0,1)
+}
+library(purrr)
+library(gridExtra)
+list(10,2,1)%>% map(crm.f)-> p
+grid.arrange(grobs = p, ncol =1)
+library(trialr)
+target<-0.25
+skeleton<-c(0.05,0.15,0.25,0.4,0.6)
+data<-data.frame(Patient=1:6,
+Cohort =rep(1:3,each=2),
+Dose_level=rep(2:4,each=2),
+DLT = c(0,0,0,0,1,1))
+data
+outcomes <- '2NN 3NN 4TT'
+model1<-stan_crm(outcomes,
+skeleton = skeleton,
+target = target,
+model = 'logistic',
+a0=3, beta_mean=0, beta_sd = sqrt(1.34))
+model2<-stan_crm(outcomes,
+skeleton = skeleton,
+target = target,
+model = 'logistic_gamma',
+a0=3, beta_shape=1, beta_inverse_scale = 1)
+model3<-stan_crm(outcomes,
+skeleton = skeleton,
+target = target,
+model = 'logistic2',
+alpha_mean =0, alpha_sd=1,
+beta_mean=0,beta_sd=1)
+library(tidyverse)
+library(tidybayes)
+model1 %>%
+spread_draws(prob_tox[Dose]) %>%
+ggplot(aes(x = Dose, y = prob_tox)) +
+stat_interval(.width = c(.5, .8, .95)) +
+scale_color_brewer() +
+labs(y = 'Prob(DLT)', title = '各用量の毒性発現確率の事後分布')+
+theme_gray (base_family = "HiraKakuPro-W3")
+LOGIT1PLNORM.crm<-
+'
+functions {
+real log_joint_pdf(int num_patients, int[] tox, int[] doses, real[] weights,
+real[] codified_doses, real a0, real beta) {
+real p;
+p = 0;
+for(j in 1:num_patients) {
+real prob_tox;
+real p_j;
+prob_tox = inv_logit(a0 + exp(beta) * codified_doses[doses[j]]);
+p_j = (weights[j] * prob_tox)^tox[j] *
+(1 - weights[j] * prob_tox)^(1 - tox[j]);
+p += log(p_j);
+}
+return p;
+}
+}
+data {
+// betaの事前分布(正規分布)の平均と標準偏差
+real beta_mean;
+real<lower=0> beta_sd;
+// 用量の種類数
+int<lower=1> num_doses;
+// skeleton (各処方用量における毒性発現確率の事前の見積もり).  skeletonは単調増加で指定.
+real<lower=0, upper = 1> skeleton[num_doses];
+// 切片定数: 3が推奨
+real a0;
+// 対象者数
+int<lower=0> num_patients;
+// 対象者ごとの毒性の有無(2値)
+int<lower=0, upper=1> tox[num_patients];
+// 用量水準
+int<lower=1, upper=num_doses> doses[num_patients];
+// 重み0から1 TITE-CRMで使用
+real weights[num_patients];
+}
+transformed data {
+//   Codified dosesに、skeletonの値を用量反応関係の値となるよう変換し格納
+real codified_doses[num_doses];
+for(i in 1:num_doses) {
+codified_doses[i] = (logit(skeleton[i]) - a0) / exp(beta_mean);
+}
+}
+parameters {
+// 推定するパラメータはbetaだけ
+real beta;
+}
+transformed parameters {
+// 推定したbetaを用いて、各処方用量における毒性発現確率prob_toxの事後分布を推定
+real<lower=0, upper=1> prob_tox[num_doses];
+for(i in 1:num_doses) {
+prob_tox[i] = inv_logit(a0 + exp(beta) * codified_doses[i]);
+}
+}
+model { // betaはN(beta_mean, beta_sd)の正規分布
+target += normal_lpdf(beta | beta_mean, beta_sd);
+// functionブロックで定義したlog_joint_pdfを使用
+target += log_joint_pdf(num_patients, tox, doses, weights, codified_doses, a0, beta);
+}
+generated quantities { // 対数尤度の計算
+vector[num_patients] log_lik;
+for (j in 1:num_patients) {
+real p_j;
+p_j = inv_logit(a0 + exp(beta) * codified_doses[doses[j]]);
+log_lik[j] = log((weights[j] * p_j)^tox[j] *
+(1 - weights[j] * p_j)^(1 - tox[j]));
+}
+}
+'
+library(rstan)
+LOGIT1PLNORM.crm<-stan_model(model_code=LOGIT1PLNORM.crm)
+model1$dat
+library(rstan)
+fit<-rstan::sampling(LOGIT1PLNORM.crm,data=model1$dat)
+fit
+fit %>%
+spread_draws(prob_tox[Dose]) %>%
+ggplot(aes(x = Dose, y = prob_tox)) +
+stat_interval(.width = c(.5, .8, .95)) +
+scale_color_brewer() +
+labs(y = 'Prob(DLT)', title = '各用量の毒性発現確率の事後分布')+
+theme_gray (base_family = "HiraKakuPro-W3")
+sessionInfo()
+load("stan.model.Rdata")
+LOGIT1PLNORM.crm
+save(LOGIT1PLNORM.crm,file="stan.model.rds")
+load("stan.model.rds")
+1+1
+lm(iris[,1]~iris[,2])
+summary(lm(iris[,1]~iris[,2]))
+lm(iris[,1]~iris[,2])
+summary(lm(iris[,1]~iris[,2]))
+iris
+data<-iris
+View(data)
+res<-lm(Sepal.Length~Sepal.Width,data=data)
+res<-lm(Sepal.Length~Sepal.Width,data=data)
+View(S9)
+summary(res
+)
+summary(res)
+?lm
+trt <- c(4.81,4.17,4.41,3.59,5.87,3.83,6.03,4.89,4.32,4.69)
+group <- gl(2, 10, 20, labels = c("Ctl","Trt"))
+weight <- c(ctl, trt)
+trt
+group
+weight
+weight <- c(ctl, trt)
+weight <- c(ctl, trt)
+lm.D9 <- lm(weight ~ group)
+ctl <- c(4.17,5.58,5.18,6.11,4.50,4.61,5.17,4.53,5.33,5.14)
+trt <- c(4.81,4.17,4.41,3.59,5.87,3.83,6.03,4.89,4.32,4.69)
+group <- gl(2, 10, 20, labels = c("Ctl","Trt"))
+weight <- c(ctl, trt)
+weight
+lm.D9 <- lm(weight ~ group)
+lm.D90 <- lm(weight ~ group - 1) # omitting intercept
+anova(lm.D9)
+summary(lm.D90)
+opar <- par(mfrow = c(2,2), oma = c(0, 0, 1.1, 0))
+plot(lm.D9, las = 1)      # Residuals, Fitted, ...
+par(opar)
+librar(lavaan)
+library(lavaan)
+model<-"
+F1=~ 1*x1+x2+x3
+"
+x1<-rnorm(100,0,1)
+x2<-rnorm(100,0,1)
+x3<-rnorm(100,0,1)
+data<-data.frame(x1,x2,x3)
+lavaan::cfa(model, data=data)
+res<-lavaan::cfa(model, data=data)
+summary(res,standardized=T,fit.measures=T)

@@ -5,6 +5,6 @@ install_hugo(force=T)
 build_site()
 serve_site()
 
-blogdown::new_post("CRM_trialr_stan")
+new_content("post/workflowr.Rmd")
 #blogdown::new_post("research_assistant")
 #blogdown::new_post("JACBT_symposium_information")
