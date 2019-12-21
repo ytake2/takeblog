@@ -132,8 +132,8 @@
 # Replace the example text with your information
 wflow_git_config(user.name = &quot;xxx&quot;, user.email = &quot;xxx@xxx.ac.jp&quot;)</code></pre>
 <p>次に、下記を実行してみます。すると、ResearchProjectフォルダが生成されてます。</p>
-<pre class="r"><code>wflow_start(&quot;ResearchProject&quot;,git=F)</code></pre>
-<p>プロジェクトフォルダの中身は次の図のようになっていました。 <img src="https://ytake2.github.io/takeblog/post/img/project.png" /> <img src="https://ytake2.github.io/takeblog/post/img//project.png" /></p>
+<pre class="r"><code>wflow_start(&quot;ResearchProject&quot;)</code></pre>
+<p>プロジェクトフォルダの中身は次の図のようになっていました。 <img src="https://ytake2.github.io/takeblog/post/img/project.png" /></p>
 <p>5つのフォルダがあります。</p>
 <ul>
 <li>analysis</li>
@@ -159,7 +159,7 @@ wflow_git_config(user.name = &quot;xxx&quot;, user.email = &quot;xxx@xxx.ac.jp&q
 <p>Home, About, Lisenceのすべてのタブの内部で、</p>
 <p><strong><em>summary</em></strong><br />
 <strong><em>checks</em></strong><br />
-*<strong>past version</strong></p>
+<strong><em>past version</em></strong></p>
 <p>と3つのタブがあり、各ページのgitを通じたバージョンコントロール情報を集約させて表示してくれます。Webページ作成はworkflowrでなくてもできてしまいますが、ウェブページに自動でバージョンコントロール情報を乗せてくれるのがこのパッケージのエモいところです。普通のWebページにいちいちファイルの更新情報が細かく載っていたらうざいですが、オープンサイエンスの文脈では重要な情報になります。これまでのアドカレの記事でもあったように、研究計画をプレレジした後に変更があった場合はそれを明示して更新するなど、動的な探索的な研究では研究計画のアップデートがありえるので、いつどこで変更があったのか履歴をたどることができるのは、科学的にエモいわけです。</p>
 <p>次のコードで、3つRmdファイルを実行して、githubに渡す準備をします。</p>
 <pre class="r"><code>wflow_publish(c(&quot;analysis/index.Rmd&quot;, &quot;analysis/about.Rmd&quot;, &quot;analysis/license.Rmd&quot;),
@@ -199,7 +199,7 @@ name. This is the default option.</code></pre>
 </div>
 <p>はい、projectフォルダに入っていたファイルがgithubに無事pushされました。</p>
 <p>最後に、これらのファイルをGithub pageの機能を使ってウェブサイトとして表示できるようにおまじないをかけます。</p>
-<p>ResearchProjectレポジトリーの右上にある<strong><em>Setteings</em></strong>をクリックしGitHub PagesのSourceがNoneとなっているところを、******masterbranch/docs folder***に切り替えます。</p>
+<p>ResearchProjectレポジトリーの右上にある<strong><em>Setteings</em></strong>をクリックしGitHub PagesのSourceがNoneとなっているところを、<strong><em>masterbranch/docs folder</em></strong>に切り替えます。</p>
 <p>そうすると下記のようにgithub Pagesのウェブサイトのurlが表示されるので、そこをクリックするとviewerでみていたのと同じサイトが立ち上がっているのが確認できます。</p>
 <div class="figure">
 <img src="https://ytake2.github.io/takeblog/post/img/projectsite6.png" />

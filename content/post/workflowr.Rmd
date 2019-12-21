@@ -89,12 +89,13 @@ wflow_git_config(user.name = "ytake2", user.email = "ytake2@fmu.ac.jp")
 
 
 ```{r,eval=F}
-wflow_start("ResearchProject",git=F)
+wflow_start("ResearchProject")
 ```
 
 プロジェクトフォルダの中身は次の図のようになっていました。
 ![](https://ytake2.github.io/takeblog/post/img/project.png)
-![](https://ytake2.github.io/takeblog/post/img//project.png)
+
+
 
 5つのフォルダがあります。  
 
@@ -128,9 +129,9 @@ Homeタブのworkflowrをクリックしてみるとこんな画面が出てき�
 
 Home, About, Lisenceのすべてのタブの内部で、  
 
-***summary***  
+***summary***   
 ***checks***  
-***past version**  
+***past version***  
 
 と3つのタブがあり、各ページのgitを通じたバージョンコントロール情報を集約させて表示してくれます。Webページ作成はworkflowrでなくてもできてしまいますが、ウェブページに自動でバージョンコントロール情報を乗せてくれるのがこのパッケージのエモいところです。普通のWebページにいちいちファイルの更新情報が細かく載っていたらうざいですが、オープンサイエンスの文脈では重要な情報になります。これまでのアドカレの記事でもあったように、研究計画をプレレジした後に変更があった場合はそれを明示して更新するなど、動的な探索的な研究では研究計画のアップデートがありえるので、いつどこで変更があったのか履歴をたどることができるのは、科学的にエモいわけです。  
 
@@ -200,7 +201,7 @@ wflow_git_push()
 最後に、これらのファイルをGithub pageの機能を使ってウェブサイトとして表示できるようにおまじないをかけます。
 
 
-ResearchProjectレポジトリーの右上にある***Setteings***をクリックしGitHub PagesのSourceがNoneとなっているところを、******masterbranch/docs folder***に切り替えます。  
+ResearchProjectレポジトリーの右上にある***Setteings***をクリックしGitHub PagesのSourceがNoneとなっているところを、***masterbranch/docs folder***に切り替えます。  
 
 そうすると下記のようにgithub Pagesのウェブサイトのurlが表示されるので、そこをクリックするとviewerでみていたのと同じサイトが立ち上がっているのが確認できます。
 
