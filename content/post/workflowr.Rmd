@@ -13,7 +13,7 @@ tags: []
 このアドカレも架橋に入ってきましたね。毎日途切れずOS関係の話題を聞けるのは良いですね。今日は、workflowrというRのパッケージを紹介します。
 
 
-### workflowr
+## workflowr
 
 [**workflowr**](https://github.com/jdblischak/workflowr)は、  
 
@@ -26,18 +26,18 @@ tags: []
 もう少し具体的には、
 
 
-##### 体系化(organized)
+### 体系化(organized)
 - 体系化されたサブディレクトリで構成されたプロジェクトのテンプレートを提供
 - 解析コードと結果をRmarkdownで統合
 - Gitを使ってソースコードと結果のバージョンコントロール
    
-##### 再現性(Reproducible)
+### 再現性(Reproducible)
 - コードのバージョンを表示
 - 各分析を独立のRセッションで実行
 - 各分析のセッション情報を記録
 - 乱数生成のseed値を固定
 
-##### 共有可能（Shareable）
+### 共有可能（Shareable）
 - 研究結果を掲載するウェブサイトを構築
 - Github PagesやGitLab Pagesを使って無料でウェブサイトがホストできちゃう
 - 過去の結果のバージョーンのリンクを生成できる  
@@ -52,7 +52,7 @@ workflowの思想 on youtube
 <iframe width="560" height="315" src="https://www.youtube.com/embed/YmRglD2oDbY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 
-##### チュートリアル
+## チュートリアル
 
 [Getting started with workflowr: workflowr version 1.6.0](https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html)
 
