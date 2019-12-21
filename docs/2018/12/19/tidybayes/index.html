@@ -72,6 +72,14 @@
       
 
 
+<pre><code>## Warning: パッケージ &#39;knitr&#39; はバージョン 3.5.2 の R の下で造られました</code></pre>
+<pre><code>## Warning: As of rlang 0.4.0, dplyr must be at least version 0.8.0.
+## ✖ dplyr 0.7.8 is too old for rlang 0.4.2.
+## ℹ Please update dplyr with `install.packages(&quot;dplyr&quot;)`.</code></pre>
+<pre><code>## Warning: パッケージ &#39;tibble&#39; はバージョン 3.5.2 の R の下で造られました</code></pre>
+<pre><code>## Warning: パッケージ &#39;stringr&#39; はバージョン 3.5.2 の R の下で造られました</code></pre>
+<pre><code>## Warning: パッケージ &#39;rstan&#39; はバージョン 3.5.2 の R の下で造られました</code></pre>
+<pre><code>## Warning: パッケージ &#39;StanHeaders&#39; はバージョン 3.5.2 の R の下で造られました</code></pre>
 <p>本記事は、<a href="https://qiita.com/advent-calendar/2018/stan">Stan adventcalender 2018</a> 19日目の記事になります。</p>
 <p>ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介してみます。</p>
 <div id="単一事例実験デザイン" class="section level3">
@@ -110,8 +118,7 @@ dat %&gt;% split(list(.$subject)) %&gt;% map(row_plot) -&gt; row_plot_list
 q0&lt;-arrangeGrob(grobs=row_plot_list) 
 grid.arrange(q0)</code></pre>
 <p><img src="../../../../post/2018-12-19-adventcalender-stan19_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<p>点線が介入を導入した時点で個々人で異なります。
-各参加者のベースライン期と介入期の平均も算出しておきます。</p>
+<p>点線が介入を導入した時点で個々人で異なります。 各参加者のベースライン期と介入期の平均も算出しておきます。</p>
 <pre class="r"><code>dat %&gt;% group_by(subject)%&gt;% filter(treatment==&quot;baseline&quot;) %&gt;% summarize(baseline=mean(outcome1)) -&gt; means
 
 dat %&gt;% group_by(subject,treatment)%&gt;%
@@ -180,11 +187,7 @@ dat %&gt;% group_by(subject,treatment)%&gt;%
 <p>subject5やsubject9は介入導入後に著しく得点が低下しており、介入の導入が即時的にアウトカムに影響を与えていそうです。一方、subject7についてみてみると、介入の導入前後で得点が近接しています。アウトカムの変化が介入の導入後に即時的に生じているわけではなさそうです。ただし、時点12くらいには得点の顕著な低下が見られます。この人にとっては、介入の効果が少し遅れて発現するのかもしれません。</p>
 <p>単純にベースライン期と介入期の平均の差を検討する場合に、subject5やsubject9の場合は問題なさそうですが、subject7については、介入の効果が遅れて発現することを考慮すると、効果が発現する前までの期間をベースライン、発現後の期間を介入期間にした方が介入の効果を適切に反映しているかもしれません。</p>
 <p>そこで、真の介入導入時点を未知のパラメータとしてデータドリブンに推定し、推定された介入導入時点前後でデータの平均を比較しよう、と言うのが今回のお話です。ここでは、顕著な得点の変化が生じた時点を推定するモデルである変化点検出モデルを使って推定します。</p>
-<p>なお、今回の推定の方法論は、下記の論文に従っています。変化点検出モデルを単一事例デザインに適用する意義やモデル詳細を知りたい人は参照ください。
-　　
-<a href="https://www.researchgate.net/publication/314950653_Bayesian_Unknown_Change-Point_Models_to_Investigate_Immediacy_in_Single_Case_Designs">Natesan, P., &amp; Hedges, L. V. (2017). Bayesian unknown change-point models to investigate immediacy in single case designs. Psychological methods, 22(4), 743.</a>
-　　
-　　</p>
+<p>なお、今回の推定の方法論は、下記の論文に従っています。変化点検出モデルを単一事例デザインに適用する意義やモデル詳細を知りたい人は参照ください。 　　 <a href="https://www.researchgate.net/publication/314950653_Bayesian_Unknown_Change-Point_Models_to_Investigate_Immediacy_in_Single_Case_Designs">Natesan, P., &amp; Hedges, L. V. (2017). Bayesian unknown change-point models to investigate immediacy in single case designs. Psychological methods, 22(4), 743.</a> 　　 　　</p>
 <div id="変化点検出モデル" class="section level3">
 <h3>変化点検出モデル</h3>
 <p>各フェーズ<span class="math inline">\(p\)</span>(ベースライン期 or 介入期)における初めの観測値<span class="math inline">\(y_{p1}\)</span>が、平均<span class="math inline">\(\hat{y}_{p1}\)</span>,分散<span class="math inline">\(\sigma^2_{\epsilon}\)</span>の正規分布に従うとします。</p>
@@ -237,8 +240,7 @@ dat %&gt;% group_by(subject,treatment)%&gt;%
 \end{eqnarray}, \]</span></p>
 <p>と表現されます。</p>
 <p>また、<span class="math inline">\(\beta_{0p}\)</span>は,</p>
-<p><span class="math display">\[\beta_{0p}=\beta_{01}*dummy+\beta_{02}*(1-dummy),\]</span>
-<span class="math display">\[ここで, dummy=step(t_{b}-t)\]</span></p>
+<p><span class="math display">\[\beta_{0p}=\beta_{01}*dummy+\beta_{02}*(1-dummy),\]</span> <span class="math display">\[ここで, dummy=step(t_{b}-t)\]</span></p>
 <p>と表現することができます。</p>
 <p>ステップ関数は、関数内の式の値が負であれば0をそれ以外は1をかえします(stanではint_step関数)。なので、dummyには、時点がベースラインフェーズにあれば1をそれ以外の場合には0が割り当てられます。</p>
 <p>このようなモデル式から, 介入導入時点を変化点<span class="math inline">\(t_b\)</span>として推定します。</p>
@@ -432,8 +434,8 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 <tr class="odd">
 <td align="left">es</td>
 <td align="right">-6.80</td>
-<td align="right">-10.03</td>
-<td align="right">-3.71</td>
+<td align="right">-10.02</td>
+<td align="right">-3.72</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -441,9 +443,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="even">
 <td align="left">mu1</td>
-<td align="right">41.67</td>
-<td align="right">39.28</td>
-<td align="right">43.85</td>
+<td align="right">41.65</td>
+<td align="right">39.33</td>
+<td align="right">44.02</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -451,9 +453,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="odd">
 <td align="left">mu2</td>
-<td align="right">22.68</td>
-<td align="right">18.90</td>
-<td align="right">28.40</td>
+<td align="right">22.65</td>
+<td align="right">18.58</td>
+<td align="right">28.26</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -461,8 +463,8 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="even">
 <td align="left">rho</td>
-<td align="right">0.61</td>
-<td align="right">0.06</td>
+<td align="right">0.60</td>
+<td align="right">0.07</td>
 <td align="right">1.00</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
@@ -472,8 +474,8 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 <tr class="odd">
 <td align="left">sigma</td>
 <td align="right">2.75</td>
-<td align="right">1.77</td>
-<td align="right">4.09</td>
+<td align="right">1.82</td>
+<td align="right">4.10</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -481,9 +483,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="even">
 <td align="left">es</td>
-<td align="right">-2.90</td>
-<td align="right">-4.58</td>
-<td align="right">-1.36</td>
+<td align="right">-2.89</td>
+<td align="right">-4.55</td>
+<td align="right">-1.28</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -491,8 +493,8 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="odd">
 <td align="left">mu1</td>
-<td align="right">40.26</td>
-<td align="right">37.55</td>
+<td align="right">40.31</td>
+<td align="right">37.59</td>
 <td align="right">42.92</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
@@ -501,9 +503,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="even">
 <td align="left">mu2</td>
-<td align="right">28.70</td>
-<td align="right">22.96</td>
-<td align="right">34.30</td>
+<td align="right">28.80</td>
+<td align="right">22.82</td>
+<td align="right">33.92</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -511,9 +513,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="odd">
 <td align="left">rho</td>
-<td align="right">-0.11</td>
+<td align="right">-0.09</td>
 <td align="right">-1.00</td>
-<td align="right">0.80</td>
+<td align="right">0.78</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -521,8 +523,8 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="even">
 <td align="left">sigma</td>
-<td align="right">4.12</td>
-<td align="right">3.11</td>
+<td align="right">4.10</td>
+<td align="right">3.10</td>
 <td align="right">5.00</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
@@ -531,9 +533,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="odd">
 <td align="left">es</td>
-<td align="right">-4.33</td>
-<td align="right">-7.05</td>
-<td align="right">-1.82</td>
+<td align="right">-4.36</td>
+<td align="right">-6.93</td>
+<td align="right">-1.88</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -541,9 +543,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="even">
 <td align="left">mu1</td>
-<td align="right">39.32</td>
-<td align="right">36.23</td>
-<td align="right">42.68</td>
+<td align="right">39.30</td>
+<td align="right">36.19</td>
+<td align="right">42.60</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -551,9 +553,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="odd">
 <td align="left">mu2</td>
-<td align="right">25.09</td>
-<td align="right">21.53</td>
-<td align="right">31.36</td>
+<td align="right">25.05</td>
+<td align="right">21.45</td>
+<td align="right">30.67</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -561,7 +563,7 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="even">
 <td align="left">rho</td>
-<td align="right">0.30</td>
+<td align="right">0.28</td>
 <td align="right">-0.37</td>
 <td align="right">1.00</td>
 <td align="right">0.95</td>
@@ -571,9 +573,9 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 </tr>
 <tr class="odd">
 <td align="left">sigma</td>
-<td align="right">3.24</td>
-<td align="right">2.23</td>
-<td align="right">4.82</td>
+<td align="right">3.23</td>
+<td align="right">2.13</td>
+<td align="right">4.66</td>
 <td align="right">0.95</td>
 <td align="left">median</td>
 <td align="left">hdi</td>
@@ -590,13 +592,13 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 <div id="session-info" class="section level3">
 <h3>session info</h3>
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>## R version 3.6.1 (2019-07-05)
+<pre><code>## R version 3.5.0 (2018-04-23)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.3
+## Running under: macOS Sierra 10.12.6
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] ja_JP.UTF-8/ja_JP.UTF-8/ja_JP.UTF-8/C/ja_JP.UTF-8/ja_JP.UTF-8
@@ -605,52 +607,48 @@ fit %&gt;% map(pi_table) %&gt;% bind_rows() %&gt;% mutate(subject=rep(c(5,7,9),e
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] RColorBrewer_1.1-2  gridExtra_2.3       rstan_2.19.2       
-##  [4] StanHeaders_2.19.0  tidybayes_1.1.0     forcats_0.4.0      
-##  [7] stringr_1.4.0       dplyr_0.8.3         purrr_0.3.3        
-## [10] readr_1.3.1         tidyr_1.0.0.9000    tibble_2.1.3       
-## [13] ggplot2_3.2.1       tidyverse_1.3.0     zousan_0.0.0.170825
-## [16] knitr_1.26         
+##  [1] bindrcpp_0.2.2      RColorBrewer_1.1-2  gridExtra_2.3      
+##  [4] rstan_2.19.2        StanHeaders_2.19.0  tidybayes_1.0.3    
+##  [7] forcats_0.3.0       stringr_1.4.0       dplyr_0.7.8        
+## [10] purrr_0.2.5         readr_1.1.1         tidyr_0.8.2        
+## [13] tibble_2.1.3        ggplot2_3.1.0       tidyverse_1.2.1    
+## [16] zousan_0.0.0.170825 knitr_1.26         
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] nlme_3.1-142              bitops_1.0-6             
-##  [3] matrixStats_0.55.0        fs_1.3.1                 
-##  [5] lubridate_1.7.4           httr_1.4.1               
-##  [7] tools_3.6.1               backports_1.1.5          
-##  [9] R6_2.4.1                  DBI_1.0.0                
-## [11] lazyeval_0.2.2            colorspace_1.4-1         
-## [13] withr_2.1.2               tidyselect_0.2.5         
-## [15] prettyunits_1.0.2         processx_3.4.1           
-## [17] compiler_3.6.1            cli_2.0.0                
-## [19] rvest_0.3.5               HDInterval_0.2.0         
-## [21] arrayhelpers_1.0-20160527 xml2_1.2.2               
-## [23] labeling_0.3              bookdown_0.15            
-## [25] scales_1.1.0              callr_3.4.0              
-## [27] digest_0.6.23             rmarkdown_1.18           
-## [29] pkgconfig_2.0.3           htmltools_0.4.0          
-## [31] dbplyr_1.4.2              highr_0.8                
-## [33] rlang_0.4.2               readxl_1.3.1             
-## [35] rstudioapi_0.10           generics_0.0.2           
-## [37] farver_2.0.1              svUnit_0.7-12            
-## [39] jsonlite_1.6              inline_0.3.15            
-## [41] RCurl_1.95-4.12           magrittr_1.5             
-## [43] loo_2.1.0                 Rcpp_1.0.3               
-## [45] munsell_0.5.0             fansi_0.4.0              
-## [47] lifecycle_0.1.0           stringi_1.4.3            
-## [49] yaml_2.2.0                pkgbuild_1.0.6           
-## [51] plyr_1.8.5                ggstance_0.3.3           
-## [53] grid_3.6.1                parallel_3.6.1           
-## [55] crayon_1.3.4              lattice_0.20-38          
-## [57] haven_2.2.0               hms_0.5.2                
-## [59] ps_1.3.0                  pillar_1.4.2             
-## [61] codetools_0.2-16          stats4_3.6.1             
-## [63] reprex_0.3.0              glue_1.3.1               
-## [65] evaluate_0.14             blogdown_0.17            
-## [67] modelr_0.1.5              vctrs_0.2.0.9007         
-## [69] cellranger_1.1.0          gtable_0.3.0             
-## [71] assertthat_0.2.1          xfun_0.11                
-## [73] broom_0.5.2               coda_0.19-3              
-## [75] ellipsis_0.3.0</code></pre>
+##  [1] httr_1.4.0                jsonlite_1.6             
+##  [3] modelr_0.1.1              assertthat_0.2.1         
+##  [5] highr_0.6                 stats4_3.5.0             
+##  [7] ggstance_0.3.1            cellranger_1.1.0         
+##  [9] yaml_2.2.0                pillar_1.4.2             
+## [11] backports_1.1.5           lattice_0.20-35          
+## [13] glue_1.3.1                arrayhelpers_1.0-20160527
+## [15] digest_0.6.23             rvest_0.3.2              
+## [17] colorspace_1.3-2          htmltools_0.4.0          
+## [19] plyr_1.8.4                pkgconfig_2.0.3          
+## [21] broom_0.5.0               svUnit_0.7-12            
+## [23] HDInterval_0.2.0          haven_1.1.2              
+## [25] bookdown_0.7              scales_1.0.0             
+## [27] withr_2.1.2               lazyeval_0.2.1           
+## [29] cli_1.1.0                 magrittr_1.5             
+## [31] crayon_1.3.4              readxl_1.1.0             
+## [33] evaluate_0.14             nlme_3.1-137             
+## [35] MASS_7.3-49               xml2_1.2.0               
+## [37] pkgbuild_1.0.2            blogdown_0.6             
+## [39] tools_3.5.0               loo_2.0.0                
+## [41] prettyunits_1.0.2         hms_0.4.2                
+## [43] matrixStats_0.53.1        munsell_0.5.0            
+## [45] callr_2.0.3               compiler_3.5.0           
+## [47] rlang_0.4.2               debugme_1.1.0            
+## [49] grid_3.5.0                RCurl_1.95-4.11          
+## [51] ggridges_0.5.1            rstudioapi_0.7           
+## [53] bitops_1.0-6              labeling_0.3             
+## [55] rmarkdown_1.18            gtable_0.2.0             
+## [57] codetools_0.2-15          inline_0.3.14            
+## [59] R6_2.4.1                  lubridate_1.7.4          
+## [61] bindr_0.1.1               stringi_1.4.3            
+## [63] parallel_3.5.0            Rcpp_1.0.3               
+## [65] tidyselect_0.2.5          xfun_0.11                
+## [67] coda_0.19-1</code></pre>
 </div>
 </div>
 

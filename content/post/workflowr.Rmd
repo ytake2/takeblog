@@ -93,7 +93,7 @@ wflow_start("ResearchProject",git=F)
 
 プロジェクトフォルダの中身は次の図のようになっていました。
 
-![](img/project.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/imgproject.png)
 
 5つのフォルダがあります。  
 
@@ -111,19 +111,19 @@ wflow_build()
 ```
 View paneにサイトが表示されます。
 うおおお。
-![](img/projectsite1.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite1.png)
 
 
 もう少し近づいてみると、
 
-![](img/projectsite2.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite2.png)
 
 Homeタブ、Aboutタブ、Lisenseタブがデフォルトで設定されています。  
 
   
 Homeタブのworkflowrをクリックしてみるとこんな画面が出てきて、
 
-![](img/projectsite3.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite3.png)
 
 Home, About, Lisenceのすべてのタブの内部で、  
 
@@ -174,7 +174,7 @@ name. This is the default option.
 
 手取り早く1を選択して見ましょう。
 
-![](img/projectsite4.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite4.png)
 
 
 ふおおお、レポジトリできとる！  
@@ -191,7 +191,7 @@ wflow_git_push()
 コンソールでgithubのユーザー名が求められるので入力するとパスワードを入力するwindowがポップアップしてくるのでそこにパスワードを入力すると、
   
 
-![](img/projectsite5.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite5.png)
 
 はい、projectフォルダに入っていたファイルがgithubに無事pushされました。  
 
@@ -204,7 +204,7 @@ ResearchProjectレポジトリーの右上にある***Setteings***をクリッ�
 そうすると下記のようにgithub Pagesのウェブサイトのurlが表示されるので、そこをクリックするとviewerでみていたのと同じサイトが立ち上がっているのが確認できます。
 
 
-![](img/projectsite6.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite6.png)
 
 [こちらがウェブサイト](https://ytake2.github.io/ResearchProject/)
 
@@ -234,19 +234,19 @@ wflow_publish(c("analysis/index.Rmd", "analysis/first-analysis.Rmd"),
 
 最初はこの状態だったのが  
 
-![](img//projectsite7.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/img/projectsite7.png)
 
 バージョンコントロールの情報が追加され
 
-![](img//projectsite10.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/img/projectsite10.png)
 
 アップデート、
 
-![](img//projectsite8.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/img/projectsite8.png)
 
 追加が反映されました。
 
-![](img//projectsite9.png)
+![](https://github.com/ytake2/takeblog/tree/master/docs/post/img/projectsite9.png)
 
 
 最高です。

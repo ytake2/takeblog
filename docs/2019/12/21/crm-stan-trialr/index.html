@@ -19,6 +19,11 @@
 
 
 
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
 <link rel="stylesheet" href="../../../../css/fonts.css" media="all">
 <link rel="stylesheet" href="../../../../css/main.css" media="all">
 
@@ -54,7 +59,7 @@
 
   <article class="article">
     
-    <span class="article-duration">1 min read</span>
+    <span class="article-duration">6 min read</span>
     
 
     <h1 class="article-title">workflowrで再現可能、共有可能な研究用サイト構築</h1>
@@ -71,10 +76,173 @@
 <p>このアドカレも架橋に入ってきましたね。毎日途切れずOS関係の話題を聞けるのは良いですね。今日は、workflowrというRのパッケージを紹介します。</p>
 <div id="workflowr" class="section level3">
 <h3>workflowr</h3>
-<p><strong>workflowr</strong></p>
+<p><a href="https://github.com/jdblischak/workflowr"><strong>workflowr</strong></a>は、</p>
+<ul>
+<li>体系化され(organized)</li>
+<li>再現可能な(reproducible)</li>
+<li>共有可能な（shareable)</li>
+</ul>
+<p>データサイエンスのためのRパッケージです。</p>
+<p>もう少し具体的には、</p>
+<div id="体系化organized" class="section level5">
+<h5>体系化(organized)</h5>
+<ul>
+<li>体系化されたサブディレクトリで構成されたプロジェクトのテンプレートを提供</li>
+<li>解析コードと結果をRmarkdownで統合</li>
+<li>Gitを使ってソースコードと結果のバージョンコントロール</li>
+</ul>
 </div>
-<div id="section" class="section level3">
-<h3></h3>
+<div id="再現性reproducible" class="section level5">
+<h5>再現性(Reproducible)</h5>
+<ul>
+<li>コードのバージョンを表示</li>
+<li>各分析を独立のRセッションで実行</li>
+<li>各分析のセッション情報を記録</li>
+<li>乱数生成のseed値を固定</li>
+</ul>
+</div>
+<div id="共有可能shareable" class="section level5">
+<h5>共有可能（Shareable）</h5>
+<ul>
+<li>研究結果を掲載するウェブサイトを構築</li>
+<li>Github PagesやGitLab Pagesを使って無料でウェブサイトがホストできちゃう</li>
+<li>過去の結果のバージョーンのリンクを生成できる</li>
+</ul>
+<p>これ全部Rstudioでできちゃうんです。Rstudioを統計解析のためだけのソフトと思っているそこのあなた！もう完全に古いです。ここ数年でRのドキュメント周りの進化は凄まじく、Rstudioを使って、ウェブサイト、ブログサイトなどとても簡単に作れるようになりました。私や国里さんや小杉さんなど、JCORSのメンバーもRstudioを使って自身のウェブサイトやブログサイトを構築しています。このような技術を、再現可能でオープンなデータサイエンスのプロジェクト管理ページの運用に最適化しよう、というのがこのパッケージの思想です。コードやファイルをアップしてバージョンコントロールするためにgitが活用されますが、それもRstudioとリンクしてほぼRstudioで作業が完結します。</p>
+<p>workflowの思想 on youtube</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/GrqM2VqIQ20" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YmRglD2oDbY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+</div>
+<div id="チュートリアル" class="section level5">
+<h5>チュートリアル</h5>
+<p><a href="https://jdblischak.github.io/workflowr/articles/wflow-01-getting-started.html">Getting started with workflowr: workflowr version 1.6.0</a></p>
+<p>これに沿って進めて、どんなもんか体験してみたいと思います。</p>
+<p>その前に必要なことは、</p>
+<ul>
+<li>githubアカウントを作成する<br />
+</li>
+<li>githubにworkflowrでプロジェクトのウェブサイトのデータやコードをアップロードするためのレポジトリを作成する</li>
+</ul>
+<p>このあたりは色々とウェブ上に記事があると思うのでググってください。</p>
+<p>まずは<strong><em>workflowr</em></strong>パッケージをインストールしてライブライで読み込んで、githubのユーザー名とメールアドレスを指定します。</p>
+<pre class="r"><code>library(workflowr)
+
+# Replace the example text with your information
+wflow_git_config(user.name = &quot;xxx&quot;, user.email = &quot;xxx@xxx.ac.jp&quot;)</code></pre>
+<p>次に、下記を実行してみます。すると、ResearchProjectフォルダが生成されてます。</p>
+<pre class="r"><code>wflow_start(&quot;ResearchProject&quot;,git=F)</code></pre>
+<p>プロジェクトフォルダの中身は次の図のようになっていました。</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/imgproject.png" />
+
+</div>
+<p>5つのフォルダがあります。</p>
+<ul>
+<li>analysis</li>
+<li>code</li>
+<li>data</li>
+<li>docs</li>
+<li>output</li>
+</ul>
+<p>中身は何もいじっていない状態で、下のコードを実行してみますと</p>
+<pre class="r"><code>wflow_build()</code></pre>
+<p>View paneにサイトが表示されます。 うおおお。 <img src="https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite1.png" /></p>
+<p>もう少し近づいてみると、</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite2.png" />
+
+</div>
+<p>Homeタブ、Aboutタブ、Lisenseタブがデフォルトで設定されています。</p>
+<p>Homeタブのworkflowrをクリックしてみるとこんな画面が出てきて、</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite3.png" />
+
+</div>
+<p>Home, About, Lisenceのすべてのタブの内部で、</p>
+<p><strong><em>summary</em></strong><br />
+<strong><em>checks</em></strong><br />
+*<strong>past version</strong></p>
+<p>と3つのタブがあり、各ページのgitを通じたバージョンコントロール情報を集約させて表示してくれます。Webページ作成はworkflowrでなくてもできてしまいますが、ウェブページに自動でバージョンコントロール情報を乗せてくれるのがこのパッケージのエモいところです。普通のWebページにいちいちファイルの更新情報が細かく載っていたらうざいですが、オープンサイエンスの文脈では重要な情報になります。これまでのアドカレの記事でもあったように、研究計画をプレレジした後に変更があった場合はそれを明示して更新するなど、動的な探索的な研究では研究計画のアップデートがありえるので、いつどこで変更があったのか履歴をたどることができるのは、科学的にエモいわけです。</p>
+<p>次のコードで、3つRmdファイルを実行して、githubに渡す準備をします。</p>
+<pre class="r"><code>wflow_publish(c(&quot;analysis/index.Rmd&quot;, &quot;analysis/about.Rmd&quot;, &quot;analysis/license.Rmd&quot;),
+              &quot;Publish the initial files for myproject&quot;)</code></pre>
+<p>次に下記のコードで<strong><em>wflow_use_github(“xxx”)</em></strong>のxxxにgithubのユーザー名を指定し実行します。</p>
+<pre class="r"><code>wflow_use_github(&quot;xxx&quot;)</code></pre>
+<p>すると、コンソールに二つの選択肢が提示されますので、お好みの方、1か2を入力します。</p>
+<ol style="list-style-type: decimal">
+<li>githubのアカウントに自動でレポジトリ作りまっせ。<br />
+</li>
+<li>自分でレポジトリ作ってあとでファイルを自分でアップしてな。</li>
+</ol>
+<pre><code>1. Have workflowr attempt to
+automatically create the repository
+&quot;ResearchProject&quot; on GitHub. This
+requires logging into GitHub and
+enabling the workflowr-oauth-app access
+to the account &quot;ytake2&quot;.
+
+2. Create the repository
+&quot;ResearchProject&quot; yourself by going to
+https://github.com/new and entering
+&quot;ResearchProject&quot; for the Repository
+name. This is the default option.</code></pre>
+<p>手取り早く1を選択して見ましょう。</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite4.png" />
+
+</div>
+<p>ふおおお、レポジトリできとる！</p>
+<p>ただ、このままではレポジトリは空です。次の手順で、手元のprojectフォルダ内のファイルをgithubに反映(push)させます。</p>
+<pre class="r"><code>wflow_git_push()</code></pre>
+<p>コンソールでgithubのユーザー名が求められるので入力するとパスワードを入力するwindowがポップアップしてくるのでそこにパスワードを入力すると、</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite5.png" />
+
+</div>
+<p>はい、projectフォルダに入っていたファイルがgithubに無事pushされました。</p>
+<p>最後に、これらのファイルをGithub pageの機能を使ってウェブサイトとして表示できるようにおまじないをかけます。</p>
+<p>ResearchProjectレポジトリーの右上にある<strong><em>Setteings</em></strong>をクリックしGitHub PagesのSourceがNoneとなっているところを、******masterbranch/docs folder***に切り替えます。</p>
+<p>そうすると下記のようにgithub Pagesのウェブサイトのurlが表示されるので、そこをクリックするとviewerでみていたのと同じサイトが立ち上がっているのが確認できます。</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/imgprojectsite6.png" />
+
+</div>
+<p><a href="https://ytake2.github.io/ResearchProject/">こちらがウェブサイト</a></p>
+<p>さて、ちゃんとバージョンコントロールの機能が機能しているかな、ということで、新規のファイルを追加してみましょう。</p>
+<p>analysisフォルダに<strong><em>first-analysis.Rmd</em></strong>というファイルを追加します。</p>
+<pre class="r"><code>wflow_open(&quot;analysis/first-analysis.Rmd&quot;)</code></pre>
+<p>ついで、index.Rmdファイルに、上のファイルを追加しました、という情報を追記しておきましょう。</p>
+<p>追加した.Rmdファイルと変更した.Rmdファイを指定し、commitコメントを適当につけます。</p>
+<pre class="r"><code>wflow_publish(c(&quot;analysis/index.Rmd&quot;, &quot;analysis/first-analysis.Rmd&quot;),
+              &quot;Add my first analysis&quot;)</code></pre>
+<p>後は先ほどと一緒で<strong><em>wflow_git_push()</em></strong></p>
+<p>最初はこの状態だったのが</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/img/projectsite7.png" />
+
+</div>
+<p>バージョンコントロールの情報が追加され</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/img/projectsite10.png" />
+
+</div>
+<p>アップデート、</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/img/projectsite8.png" />
+
+</div>
+<p>追加が反映されました。</p>
+<div class="figure">
+<img src="https://github.com/ytake2/takeblog/tree/master/docs/post/img/projectsite9.png" />
+
+</div>
+<p>最高です。</p>
+<p>このような枠組みで研究プロジェクトの計画、解析結果をバージョンコントロール情報もオープンにしながら共有していけるのはもう少し先の未来だと思っていたけど、既に現実なのですね。後は我々ユーザーがどう活用、普及していく仕組みを工夫していくか、というところでしょうか。来年、JCORSで色々と仕掛けていけるかどうかわかりませんが、国里さんはうずうずしているようですので皆様お楽しみに♪</p>
+<p>それぞれのページの記載内容は.Rmdで編集すればOKで、Rmdで利用可能なテーマなど、デザインはある程度自由にアレンジできますので、お好みのデザインで研究プロジェクトのWebページを作成して楽しんでもらえたら良いでしょう。</p>
+<p>Enjoy!!</p>
+</div>
 </div>
 
     </div>
@@ -96,6 +264,18 @@
 
     </div>
     
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
 
     
 

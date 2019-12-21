@@ -17,7 +17,7 @@
       <pubDate>Wed, 19 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/12/19/tidybayes/</guid>
-      <description>本記事は、Stan adventcalender 2018 19日目の記事になります。 ここでは、単一事例実験デザインで得られたデータで介入の効果を定量化する方法の１例を紹介してみ</description>
+      <description>## Warning: パッケージ &amp;#39;knitr&amp;#39; はバージョン 3.5.2 の R の下で造られました ## Warning: As of rlang 0.4.0, dplyr must be at least version 0.8.0. ## ✖ dplyr 0.7.8 is too old for rlang 0.4.2. ## ℹ Please update dplyr with `install.packages(&amp;quot;dplyr&amp;quot;)`. ## Warning: パッケージ &amp;#39;tibble&amp;#39; はバージョン</description>
     </item>
     
     <item>
@@ -26,7 +26,7 @@
       <pubDate>Mon, 03 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>/2018/12/03/tidybayes/</guid>
-      <description>今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、Stan adventcalender 2018 3日目の記事になります。 2日目のHojoさ</description>
+      <description>## Warning: パッケージ &amp;#39;knitr&amp;#39; はバージョン 3.5.2 の R の下で造られました 今年も始まりましたね。Stanアドカレ!! 3年連続のエントリーとなりました。本記事は、S</description>
     </item>
     
     <item>
