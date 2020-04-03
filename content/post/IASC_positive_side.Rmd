@@ -57,9 +57,9 @@ tags: [IASC]
 
 [^2]: Tedeschi, R. G., & Calhoun, L. G. (1996). The Posttraumatic Growth Inventory: Measuring the positive legacy of trauma. Journal of traumatic stress, 9(3), 455-471.
 
-国立精神神経医療研究センターの山口慶子先生, 伊藤正哉先生, 堀越勝先生と一緒に取り組んだ大学生を対象としたアンケート調査[^3]においても、困難な状況下でポジティブ感情を維持するような感情の調整の仕方が、1ヶ月後の抑うつ症状を説明することが示されています[^4]  
+国立精神神経医療研究センターの山口慶子先生, 伊藤正哉先生と一緒に取り組んだ大学生を対象としたアンケート調査[^3]においても、困難な状況下でポジティブ感情を維持するような感情の調整の仕方が、1ヶ月後の抑うつ症状を説明することが示されています[^4]  
 
-[^3]: https://onlinelibrary.wiley.com/doi/abs/10.1111/papt.12176
+[^3]: Yamaguchi, K., Ito, M., & Takebayashi, Y. (2018). Positive emotion in distress as a potentially effective emotion regulation strategy for depression: A preliminary investigation. Psychology and Psychotherapy: Theory, Research and Practice, 91(4), 509-525.
 
 [^4]:ただし2時点のみの調査で単一の研究による知見であり、大学生を対象にした調査結果でもあるため、本結果がどこまで頑健で一般化可能であるかはさらなる検証が必要です。
 
