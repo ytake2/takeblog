@@ -6,9 +6,19 @@
     <description>Recent content in Tags on 竹林由武のブログ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
+    <lastBuildDate>Fri, 03 Apr 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>IASC</title>
+      <link>/tags/iasc/</link>
+      <pubDate>Fri, 03 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/iasc/</guid>
+      <description></description>
+    </item>
     
   </channel>
 </rss>

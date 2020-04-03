@@ -6,10 +6,19 @@
     <description>Recent content on 竹林由武のブログ</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja-jp</language>
-    <lastBuildDate>Sat, 21 Dec 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 03 Apr 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>困難な状況の中でポジティブなところに目を向ける.</title>
+      <link>/2020/04/03/%E5%9B%B0%E9%9B%A3%E3%81%AA%E7%8A%B6%E6%B3%81%E3%81%AE%E4%B8%AD%E3%81%A7%E3%83%9D%E3%82%B8%E3%83%86%E3%82%A3%E3%83%96%E3%81%AA%E3%81%A8%E3%81%93%E3%82%8D%E3%81%AB%E7%9B%AE%E3%82%92%E5%90%91%E3%81%91%E3%82%8B./</link>
+      <pubDate>Fri, 03 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/04/03/%E5%9B%B0%E9%9B%A3%E3%81%AA%E7%8A%B6%E6%B3%81%E3%81%AE%E4%B8%AD%E3%81%A7%E3%83%9D%E3%82%B8%E3%83%86%E3%82%A3%E3%83%96%E3%81%AA%E3%81%A8%E3%81%93%E3%82%8D%E3%81%AB%E7%9B%AE%E3%82%92%E5%90%91%E3%81%91%E3%82%8B./</guid>
+      <description>IASCブリーフィングノートの普及 コロナ感染拡大が広まる状況下で、人々の不安が高まり、メンタルヘルスの悪化が懸念されています。そのような懸念</description>
+    </item>
     
     <item>
       <title>workflowrで再現可能、共有可能な研究用サイト構築</title>
